@@ -7,7 +7,6 @@ import {
   loginSuperAdmin,
   loginCampusAdmin,
   loginStudent,
-  getSuperAdminEmail,
 } from "@/lib/store";
 
 type Role = "super_admin" | "campus_admin" | "student";
@@ -114,7 +113,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder={
                   role === "super_admin"
-                    ? getSuperAdminEmail()
+                    ? "admin@campuschain.io"
                     : role === "campus_admin"
                     ? "admin@apsit.edu.in"
                     : "student@apsit.edu.in"
@@ -159,9 +158,7 @@ export default function LoginPage() {
           <div className="mt-6 pt-6 border-t border-white/[0.06] text-center space-y-3">
             {role === "super_admin" && (
               <p className="text-xs text-muted">
-                Demo credentials:{" "}
-                <code className="text-secondary-light">{getSuperAdminEmail()}</code> /{" "}
-                <code className="text-secondary-light">admin123</code>
+                Only authorized platform administrators can access this panel.
               </p>
             )}
             {role === "campus_admin" && (

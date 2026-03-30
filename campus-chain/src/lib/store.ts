@@ -200,7 +200,18 @@ export function loginCampusAdmin(email: string, password: string): { success: bo
 }
 
 export function loginStudent(email: string, password: string): { success: boolean; error?: string } {
-  // First check if user is a fully activated student
+  // First check if the email domain belongs to a registered university
+  const emailDomain = "@" + email.split("@")[1];
+  const unis = getUniversities();
+  const matchedUni = unis.find((u) => u.domain.toLowerCase() === emailDomain.toLowerCase());
+  if (!matchedUni) {
+    return {
+      success: false,
+      error: `The college for domain "${emailDomain}" is not yet registered on CampusChain. Please ask your college administration to register their campus first.`,
+    };
+  }
+
+  // Check if user is a fully activated student
   const students = getStudents();
   const student = students.find((s) => s.email === email && s.password === password);
   if (student) {
@@ -269,11 +280,17 @@ export function registerPendingStudent(
     return { success: false, error: "An account with this email already exists." };
   }
 
-  // Check if the email domain matches any registered university
+  // Check if the email domain matches any registered & approved university
   const emailDomain = "@" + email.split("@")[1];
   const unis = getUniversities();
   const matchedUni = unis.find((u) => u.domain.toLowerCase() === emailDomain.toLowerCase());
-  const domainValid = !!matchedUni;
+
+  if (!matchedUni) {
+    return {
+      success: false,
+      error: `The college for domain "${emailDomain}" is not yet registered on CampusChain. Please ask your college administration to register first at the Request Campus page.`,
+    };
+  }
 
   const ps: PendingStudent = {
     id: generateId(),
@@ -282,7 +299,7 @@ export function registerPendingStudent(
     password,
     department,
     status: "pending",
-    domainValid,
+    domainValid: true,
     createdAt: new Date().toISOString(),
   };
   existing.push(ps);
