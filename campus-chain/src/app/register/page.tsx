@@ -51,18 +51,17 @@ export default function RegisterPage() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 relative">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-success/10 blur-[100px] rounded-full pointer-events-none" />
         <div className="w-full max-w-lg z-10 animate-fade-in text-center">
           <div className="glass-card p-10">
             <div className="w-20 h-20 rounded-full bg-success/20 border-2 border-success flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">✓</span>
+              <span className="text-4xl text-success">✓</span>
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">Registration Submitted!</h2>
             <p className="text-muted text-sm mb-2">
               Your account has been created and is now <strong className="text-white">pending approval</strong> from your Campus Admin.
             </p>
-            <p className="text-muted text-sm mb-8">
-              Once approved, you will receive a <span className="text-secondary-light font-semibold">License Key</span> which you&apos;ll use to activate your CampusChain wallet and blockchain features.
+            <p className="text-zinc-500 text-sm mb-8">
+              Once approved, you will receive a <span className="text-white font-semibold">License Key</span> which you&apos;ll use to activate your CampusChain wallet.
             </p>
 
             <div className="glass-card p-4 text-left mb-6">
@@ -77,30 +76,20 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <span className="text-muted text-xs">Department</span>
-                  <div className="text-secondary-light mt-0.5">{department}</div>
+                  <div className="text-white mt-0.5">{department}</div>
                 </div>
                 <div>
                   <span className="text-muted text-xs">Status</span>
-                  <div className="mt-0.5"><span className="badge badge-unused">Pending Approval</span></div>
+                  <div className="mt-0.5"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-white/5 uppercase tracking-wider">Pending Approval</span></div>
                 </div>
               </div>
             </div>
 
-            <div className="glass-card p-4 text-left mb-6 border-l-2 border-primary/50">
-              <h4 className="text-sm font-semibold text-white mb-2">📋 What happens next?</h4>
-              <ol className="text-xs text-muted space-y-1.5 list-decimal list-inside">
-                <li>Your Campus Admin will verify your college email domain</li>
-                <li>Once approved, a <span className="text-secondary-light">License Key</span> will be generated for you</li>
-                <li>Your admin will securely share the key with you</li>
-                <li>Login and enter your key to unlock your Web3 wallet & $CAMPUS tokens</li>
-              </ol>
-            </div>
-
             <div className="flex gap-3 justify-center">
-              <Link href="/login" className="btn-primary">
+              <Link href="/login" className="px-6 py-2.5 rounded-xl bg-white text-black font-bold hover:bg-zinc-200 transition-all text-sm">
                 Go to Login →
               </Link>
-              <Link href="/" className="btn-secondary">
+              <Link href="/" className="px-6 py-2.5 rounded-xl bg-white/5 text-white font-medium border border-white/5 hover:bg-white/10 transition-all text-sm">
                 Back to Home
               </Link>
             </div>
@@ -112,15 +101,12 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
-
       <div className="w-full max-w-lg z-10 animate-fade-in">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white">
+          <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl font-black text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-105">
             C
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">CampusChain</span>
+          <span className="text-2xl font-bold text-white tracking-tighter">CampusChain</span>
         </Link>
 
         <div className="glass-card p-8 animate-fade-in">
@@ -134,9 +120,9 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="text-xs text-muted block mb-2">Full Name *</label>
+              <label className="text-xs text-muted block mb-2 font-medium">Full Name *</label>
               <input
-                className="input-field"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                 placeholder="e.g. Jagdish Patel"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -145,51 +131,51 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-xs text-muted block mb-2">College Email *</label>
+              <label className="text-xs text-muted block mb-2 font-medium">College Email *</label>
               <input
-                className="input-field"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                 type="email"
                 placeholder="e.g. student@apsit.edu.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <p className="text-[11px] text-muted mt-1.5 ml-1">
+              <p className="text-[11px] text-zinc-500 mt-2 ml-1">
                 Must use your official college domain email (e.g. @apsit.edu.in)
               </p>
             </div>
 
             <div>
-              <label className="text-xs text-muted block mb-2">Department *</label>
+              <label className="text-xs text-muted block mb-2 font-medium">Department *</label>
               <select
-                className="select-field"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm appearance-none cursor-pointer"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value as Department)}
               >
                 {DEPARTMENTS.map((d) => (
-                  <option key={d} value={d}>
+                  <option key={d} value={d} className="bg-zinc-950 text-white">
                     {d}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-muted block mb-2">Password *</label>
+                <label className="text-xs text-muted block mb-2 font-medium">Password *</label>
                 <input
-                  className="input-field"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                   type="password"
-                  placeholder="Min 6 characters"
+                  placeholder="Min 6 chars"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label className="text-xs text-muted block mb-2">Confirm Password *</label>
+                <label className="text-xs text-muted block mb-2 font-medium">Confirm Password *</label>
                 <input
-                  className="input-field"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                   type="password"
                   placeholder="Re-enter"
                   value={confirmPassword}
@@ -200,7 +186,7 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl p-3">
+              <div className="text-red-400 text-xs bg-red-400/5 border border-red-400/10 rounded-xl p-3">
                 ⚠️ {error}
               </div>
             )}
@@ -208,26 +194,20 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary mt-2 w-full text-center flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm shadow-[0_0_20px_rgba(255,255,255,0.1)] mt-4 disabled:opacity-50"
             >
-              {loading ? (
-                <>
-                  <span className="animate-spin">⏳</span> Registering...
-                </>
-              ) : (
-                <>Create Account →</>
-              )}
+              {loading ? "Registering..." : "Create Account →"}
             </button>
           </form>
-        </div>
 
-        <div className="text-center mt-6 space-y-2">
-          <Link href="/login" className="text-muted text-sm hover:text-white transition-colors block">
-            Already have an account? Sign In →
-          </Link>
-          <Link href="/" className="text-muted text-sm hover:text-white transition-colors block">
-            ← Back to Home
-          </Link>
+          <div className="text-center mt-8 space-y-3">
+            <Link href="/login" className="text-muted text-xs hover:text-white transition-colors block">
+              Already have an account? Sign In →
+            </Link>
+            <Link href="/" className="text-muted text-[10px] hover:text-white transition-colors block">
+              ← Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

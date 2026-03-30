@@ -45,32 +45,26 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect based on role
       if (role === "super_admin") router.push("/super-admin");
       else if (role === "campus_admin") router.push("/admin");
       else router.push("/dashboard");
     }, 800);
   }
 
-  const roles: { key: Role; label: string; icon: string; desc: string }[] = [
-    { key: "student", label: "Student", icon: "🎓", desc: "Access your wallet & marketplace" },
-    { key: "campus_admin", label: "Campus Admin", icon: "🔑", desc: "Manage keys & students" },
-    { key: "super_admin", label: "Super Admin", icon: "🏛️", desc: "Platform governance" },
+  const roles: { key: Role; label: string; icon: string }[] = [
+    { key: "student", label: "Student", icon: "🎓" },
+    { key: "campus_admin", label: "Campus Admin", icon: "🔑" },
+    { key: "super_admin", label: "Super Admin", icon: "🏛️" },
   ];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
-      {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[250px] bg-secondary/10 blur-[80px] rounded-full pointer-events-none" />
-
       <div className="w-full max-w-md z-10 animate-fade-in">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white">
+          <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl font-black text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-105">
             C
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">CampusChain</span>
+          <span className="text-2xl font-bold text-white tracking-tighter">CampusChain</span>
         </Link>
 
         <div className="glass-card p-8">
@@ -79,7 +73,6 @@ export default function LoginPage() {
             Sign in to your CampusChain account
           </p>
 
-          {/* Role Tabs */}
           <div className="grid grid-cols-3 gap-2 mb-8">
             {roles.map((r) => (
               <button
@@ -90,51 +83,46 @@ export default function LoginPage() {
                   setPassword("");
                   setError("");
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-center transition-all ${
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-lg text-center transition-all ${
                   role === r.key
-                    ? "bg-primary/20 border border-primary/30 text-white"
-                    : "bg-white/3 border border-white/5 text-muted hover:bg-white/5 hover:text-white"
+                    ? "bg-white border border-white text-black font-bold shadow-[0_0_15px_rgba(255,255,255,0.2)] scale-[1.02]"
+                    : "bg-white/[0.03] border border-white/5 text-muted hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <span className="text-xl">{r.icon}</span>
-                <span className="text-xs font-semibold">{r.label}</span>
+                <span className="text-[10px] font-bold uppercase tracking-tight">{r.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
-              <label className="text-xs text-muted block mb-2">
+              <label className="text-xs text-muted block mb-2 font-medium">
                 {role === "super_admin" ? "Admin Email" : role === "campus_admin" ? "Campus Admin Email" : "Student Email"}
               </label>
               <input
-                className="input-field"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                 type="email"
-                placeholder={
-                  role === "super_admin"
-                    ? "admin@campuschain.io"
-                    : role === "campus_admin"
-                    ? "admin@apsit.edu.in"
-                    : "student@apsit.edu.in"
-                }
+                placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             <div>
-              <label className="text-xs text-muted block mb-2">Password</label>
+              <label className="text-xs text-muted block mb-2 font-medium">Password</label>
               <input
-                className="input-field"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 
             {error && (
-              <div className="text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl p-3">
+              <div className="text-red-400 text-xs bg-red-400/5 border border-red-400/10 rounded-xl p-3">
                 ⚠️ {error}
               </div>
             )}
@@ -142,59 +130,40 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full text-center mt-2 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm shadow-[0_0_20px_rgba(255,255,255,0.1)] mt-4 disabled:opacity-50"
             >
-              {loading ? (
-                <>
-                  <span className="animate-spin">⏳</span> Authenticating...
-                </>
-              ) : (
-                <>Sign In →</>
-              )}
+              {loading ? "Authenticating..." : "Sign In →"}
             </button>
           </form>
 
-          {/* Helper Text */}
-          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center space-y-3">
-            {role === "super_admin" && (
-              <p className="text-xs text-muted">
-                Only authorized platform administrators can access this panel.
-              </p>
-            )}
-            {role === "campus_admin" && (
+          <div className="mt-8 pt-6 border-t border-white/[0.06] text-center space-y-4">
+            {role === "student" && (
               <div className="space-y-2">
-                <p className="text-xs text-muted">
-                  Don&apos;t have an admin account yet?
-                </p>
+                <p className="text-xs text-muted">New student?</p>
                 <Link
-                  href="/request-campus"
-                  className="inline-block text-sm font-semibold text-primary-light hover:text-white transition-colors"
+                  href="/register"
+                  className="inline-block text-sm font-semibold text-white underline underline-offset-4 hover:opacity-80 transition-all"
                 >
-                  Request Campus Registration →
+                  Create Account →
                 </Link>
               </div>
             )}
-            {role === "student" && (
+            {role === "campus_admin" && (
               <div className="space-y-2">
-                <p className="text-xs text-muted">
-                  New student? Create your account first.
-                </p>
+                <p className="text-xs text-muted">Register your institution?</p>
                 <Link
-                  href="/register"
-                  className="inline-block text-sm font-semibold text-primary-light hover:text-white transition-colors"
+                  href="/request-campus"
+                  className="inline-block text-sm font-semibold text-white underline underline-offset-4 hover:opacity-80 transition-all"
                 >
-                  Student Registration →
+                  Apply Here →
                 </Link>
-                <p className="text-[11px] text-muted mt-1">
-                  After registration, your Campus Admin will approve and share a License Key with you.
-                </p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="text-center mt-6">
-          <Link href="/" className="text-muted text-sm hover:text-white transition-colors">
+        <div className="text-center mt-8">
+          <Link href="/" className="text-muted text-[10px] hover:text-white transition-colors">
             ← Back to Home
           </Link>
         </div>

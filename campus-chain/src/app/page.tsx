@@ -8,10 +8,10 @@ export default function Home() {
       {/* Navbar */}
       <nav className="flex items-center justify-between px-8 py-5 z-20 relative">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-lg font-bold text-white">
+          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]">
             C
           </div>
-          <span className="text-lg font-bold text-white tracking-tight">CampusChain</span>
+          <span className="text-xl font-bold text-white tracking-tighter">CampusChain</span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/request-campus" className="text-zinc-400 hover:text-white transition-colors">
@@ -19,7 +19,7 @@ export default function Home() {
           </Link>
           <Link
             href="/login"
-            className="px-5 py-2.5 rounded-xl bg-primary/20 text-white font-semibold border border-primary/30 hover:bg-primary/30 transition-all"
+            className="px-5 py-2 rounded-lg bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm shadow-[0_0_15px_rgba(255,255,255,0.1)]"
           >
             Sign In
           </Link>
@@ -27,44 +27,37 @@ export default function Home() {
       </nav>
 
       <main className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 text-center z-10">
-        {/* Glow Effects */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/15 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[300px] bg-secondary/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-300 mb-8 backdrop-blur-md">
-          <span className="flex h-2 w-2 rounded-full bg-success shadow-[0_0_10px_rgba(34,197,94,0.8)] animate-pulse" />
-          Multi-Tenant Web3 University Identity System
-        </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white max-w-4xl mb-6">
+        <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-white max-w-4xl mb-6">
           The{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+          <span className="metallic-text">
             CampusChain
           </span>{" "}
           Ecosystem
         </h1>
 
-        <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mb-12 leading-relaxed">
+        <p className="text-lg md:text-xl text-zinc-500 max-w-2xl mb-12 leading-relaxed font-medium">
           Gasless transactions, biometric passkeys, and soulbound identities.
-          A multi-tenant Web3 SaaS platform built for modern universities.
+          A premium Web3 SaaS platform for modern universities.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <Link
             href="/login"
-            className="flex items-center justify-center h-14 px-8 rounded-2xl bg-gradient-to-r from-primary to-primary-light text-white font-semibold hover:opacity-90 transition-all shadow-[0_0_25px_rgba(109,40,217,0.4)] hover:shadow-[0_0_35px_rgba(109,40,217,0.6)]"
+            className="btn-primary flex items-center justify-center h-14 px-10 text-base"
           >
             🔐 Sign In
           </Link>
           <Link
             href="/register"
-            className="flex items-center justify-center h-14 px-8 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 backdrop-blur-md transition-all"
+            className="btn-secondary flex items-center justify-center h-14 px-8 text-base"
           >
             🎓 Student Registration
           </Link>
           <Link
             href="/request-campus"
-            className="flex items-center justify-center h-14 px-8 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 backdrop-blur-md transition-all"
+            className="btn-secondary flex items-center justify-center h-14 px-8 text-base border-white/5"
           >
             🏛️ Register Your Campus
           </Link>
@@ -132,32 +125,32 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-white mb-8 text-center">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-2xl border border-primary/20">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
                 🏛️
               </div>
               <div className="text-sm font-semibold text-white">Super Admin</div>
-              <p className="text-xs text-muted">Registers university domains</p>
+              <p className="text-xs text-zinc-500">Registers university domains</p>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center text-2xl border border-secondary/20">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
                 🔑
               </div>
               <div className="text-sm font-semibold text-white">Campus Admin</div>
-              <p className="text-xs text-muted">Generates license keys</p>
+              <p className="text-xs text-zinc-500">Generates license keys</p>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-success/20 flex items-center justify-center text-2xl border border-success/20">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
                 🎓
               </div>
               <div className="text-sm font-semibold text-white">Student</div>
-              <p className="text-xs text-muted">Redeems key + Passkey auth</p>
+              <p className="text-xs text-zinc-500">Redeems key + Passkey auth</p>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-warning/20 flex items-center justify-center text-2xl border border-warning/20">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl border border-white/10">
                 💰
               </div>
               <div className="text-sm font-semibold text-white">Ecosystem</div>
-              <p className="text-xs text-muted">Pay, trade, earn — gasless</p>
+              <p className="text-xs text-zinc-500">Pay, trade, earn — gasless</p>
             </div>
           </div>
         </div>

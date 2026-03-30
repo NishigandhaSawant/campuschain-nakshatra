@@ -48,7 +48,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Check if they're a fully approved student
     const u = getStudentByEmail(session.email);
     if (u) {
       setUser(u);
@@ -60,16 +59,13 @@ export default function DashboardPage() {
       return;
     }
 
-    // Check if they're still pending
     const pending = getPendingStudents();
     const ps = pending.find((p) => p.email === session.email);
     if (ps && ps.status === "approved") {
-      // Approved but not yet a full student — shouldn't happen normally
       setIsPending(true);
       return;
     }
 
-    // Not found at all
     router.push("/login");
   }, [router]);
 
@@ -142,84 +138,64 @@ export default function DashboardPage() {
     router.push("/login");
   }
 
-  // Loading state
   if (!user && !isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted animate-pulse">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="text-zinc-500 animate-pulse font-medium">Loading Dashboard...</div>
       </div>
     );
   }
 
-  // ================================================================
-  // LICENSE KEY ACTIVATION GATE — student exists but hasn't entered key yet
-  // ================================================================
   if (user && !user.activated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 relative">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[250px] bg-secondary/10 blur-[80px] rounded-full pointer-events-none" />
-
         <div className="w-full max-w-lg z-10 animate-fade-in">
           <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white">
+            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl font-black text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]">
               C
             </div>
-            <span className="text-xl font-bold text-white tracking-tight">CampusChain</span>
+            <span className="text-2xl font-bold text-white tracking-tighter">CampusChain</span>
           </Link>
 
           <div className="glass-card p-8">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🔑</span>
+              <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl text-white">🔑</span>
               </div>
               <h2 className="text-2xl font-bold text-white">Activate Your Account</h2>
               <p className="text-muted text-sm mt-2">
                 Welcome, <strong className="text-white">{user.name}</strong>! Your registration has been
-                approved. Enter the License Key provided by your Campus Admin to unlock your wallet.
+                approved. Enter your License Key to unlock your wallet.
               </p>
             </div>
 
-            {/* Student Info */}
             <div className="glass-card p-4 mb-6">
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-muted text-xs">Name</span>
-                  <div className="text-white mt-0.5">{user.name}</div>
+                  <span className="text-zinc-500 font-medium">NAME</span>
+                  <div className="text-white font-semibold mt-0.5">{user.name}</div>
                 </div>
                 <div>
-                  <span className="text-muted text-xs">Email</span>
-                  <div className="text-white mt-0.5">{user.email}</div>
-                </div>
-                <div>
-                  <span className="text-muted text-xs">Department</span>
-                  <div className="text-secondary-light mt-0.5">{user.department}</div>
-                </div>
-                <div>
-                  <span className="text-muted text-xs">University</span>
-                  <div className="text-white mt-0.5">{user.universityName}</div>
+                  <span className="text-zinc-500 font-medium">EMAIL</span>
+                  <div className="text-white font-semibold mt-0.5">{user.email}</div>
                 </div>
               </div>
             </div>
 
             <form onSubmit={handleActivate} className="flex flex-col gap-4">
               <div>
-                <label className="text-xs text-muted block mb-2">License Key *</label>
+                <label className="text-xs text-muted block mb-2 font-medium uppercase tracking-wider">License Key *</label>
                 <input
-                  className="input-field font-mono tracking-wider text-center text-lg"
-                  placeholder="XXXX-XXXX-XXXX-XXXX"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-center text-lg font-mono tracking-[0.2em]"
+                  placeholder="XXXX-XXXX"
                   value={licenseKey}
                   onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
                   maxLength={19}
-                  style={{ letterSpacing: "0.15em" }}
                 />
-                <p className="text-[11px] text-muted mt-1.5 ml-1">
-                  This key was generated by your Campus Admin. Check your email or contact your admin.
-                </p>
               </div>
 
               {keyError && (
-                <div className="text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl p-3">
+                <div className="text-red-400 text-xs bg-red-400/5 border border-red-400/10 rounded-xl p-3">
                   ⚠️ {keyError}
                 </div>
               )}
@@ -227,28 +203,15 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={activating}
-                className="btn-primary w-full text-center flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm disabled:opacity-50"
               >
-                {activating ? (
-                  <>
-                    <span className="animate-spin">⏳</span> Activating...
-                  </>
-                ) : (
-                  <>🔓 Activate & Unlock Wallet</>
-                )}
+                {activating ? "Activating Wallet..." : "Unlock Wallet →"}
               </button>
             </form>
-
-            <div className="mt-6 pt-4 border-t border-white/[0.06] text-center">
-              <p className="text-xs text-muted">
-                After activation you&apos;ll receive <span className="text-success font-semibold">100 $CAMPUS</span> as a welcome airdrop
-                and get your Soulbound Student ID (SBT) minted to your Smart Account.
-              </p>
-            </div>
           </div>
 
-          <div className="text-center mt-6">
-            <button onClick={handleLogout} className="text-muted text-sm hover:text-white transition-colors">
+          <div className="text-center mt-8">
+            <button onClick={handleLogout} className="text-muted text-xs hover:text-white transition-colors">
               ← Sign Out
             </button>
           </div>
@@ -259,369 +222,194 @@ export default function DashboardPage() {
     );
   }
 
-  // ================================================================
-  // FULL DASHBOARD — activated student
-  // ================================================================
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex text-white relative">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/[0.06] p-6 flex flex-col gap-2 shrink-0">
-        <Link href="/" className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-lg font-bold">
+      <aside className="w-72 border-r border-white/5 p-6 flex flex-col gap-2 shrink-0 bg-black/20 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-3 mb-10 px-2">
+          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black">
             C
           </div>
           <div>
             <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
-            <div className="text-[11px] text-muted">Student Wallet</div>
+            <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Student</div>
           </div>
         </Link>
-        <button onClick={() => setActiveTab("wallet")} className={`sidebar-link ${activeTab === "wallet" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("wallet")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "wallet" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>📊</span> Transactions
         </button>
-        <button onClick={() => setActiveTab("send")} className={`sidebar-link ${activeTab === "send" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("send")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "send" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>💸</span> Send Tokens
         </button>
-        <button onClick={() => setActiveTab("marketplace")} className={`sidebar-link ${activeTab === "marketplace" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("marketplace")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "marketplace" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>🛒</span> Marketplace
         </button>
-        <button onClick={() => setActiveTab("qr")} className={`sidebar-link ${activeTab === "qr" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("qr")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "qr" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>📱</span> Tap-to-Pay
         </button>
 
-        {/* User Info */}
-        <div className="mt-auto pt-6 border-t border-white/[0.06]">
-          <div className="text-xs text-muted mb-1">{user.universityName}</div>
-          <div className="text-sm font-semibold text-white">{user.name}</div>
-          <div className="text-xs text-muted mt-0.5">{user.department}</div>
-          <div className="text-xs text-muted mt-1">{user.email}</div>
+        <div className="mt-auto pt-6 border-t border-white/5 px-2">
+          <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2">{user.universityName}</div>
+          <div className="text-sm font-bold text-white truncate">{user.name}</div>
+          <div className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</div>
           <button
             onClick={handleLogout}
-            className="text-xs text-danger mt-3 hover:underline"
+            className="text-xs text-red-400 mt-4 font-bold hover:underline"
           >
             Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-5xl mx-auto animate-fade-in">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
-                Welcome, {user.name.split(" ")[0]}
+              <h1 className="text-3xl font-black text-white tracking-tighter">
+                Hello, {user.name.split(" ")[0]}
               </h1>
-              <p className="text-muted mt-1">Your CampusChain Wallet Dashboard</p>
+              <p className="text-zinc-500 text-sm mt-1 font-medium">Your CampusChain Wallet</p>
             </div>
-            <div className="flex items-center gap-3">
-              <span className={`badge badge-${user.status}`}>{user.status}</span>
-              <code className="text-xs text-muted bg-white/5 px-3 py-1.5 rounded-lg">
-                {user.walletAddress.slice(0, 6)}…{user.walletAddress.slice(-4)}
+            <div className="flex items-center gap-3 text-xs">
+              <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-zinc-400 font-bold uppercase tracking-widest">{user.status}</span>
+              <code className="text-zinc-500 font-mono bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
+                {user.walletAddress.slice(0, 8)}…{user.walletAddress.slice(-6)}
               </code>
             </div>
           </div>
 
-          {/* Wallet Card */}
-          <div className="relative overflow-hidden rounded-2xl p-8 mb-8"
-            style={{
-              background: "linear-gradient(135deg, rgba(109,40,217,0.3), rgba(14,165,233,0.2))",
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 blur-[80px] rounded-full pointer-events-none" />
+          {/* Balance Card */}
+          <div className="relative overflow-hidden rounded-2xl p-10 mb-8 bg-white/[0.03] border border-white/10">
             <div className="relative z-10">
-              <div className="text-sm text-white/60 mb-2 font-medium">$CAMPUS Balance</div>
-              <div className="text-5xl font-bold text-white tracking-tight mb-4">
+              <div className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-3">$CAMPUS BALANCE</div>
+              <div className="text-6xl font-black text-white tracking-tighter">
                 {user.campusBalance.toLocaleString()}
-                <span className="text-lg text-white/40 ml-2">$CAMP</span>
+                <span className="text-xl text-zinc-600 ml-3">CAMP</span>
               </div>
-              <div className="flex gap-6 text-sm flex-wrap">
-                <div>
-                  <span className="text-white/40">SBT ID:</span>{" "}
-                  <code className="text-primary-light">{user.sbtTokenId}</code>
-                </div>
-                <div>
-                  <span className="text-white/40">Department:</span>{" "}
-                  <span className="text-secondary-light">{user.department}</span>
-                </div>
-                <div>
-                  <span className="text-white/40">Passkey:</span>{" "}
-                  <span className="text-success">✓ Active</span>
-                </div>
-                <div>
-                  <span className="text-white/40">Gas Fees:</span>{" "}
-                  <span className="text-secondary-light">0 (Sponsored)</span>
-                </div>
+              <div className="flex gap-8 mt-8 text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                <div>SBT ID: <span className="text-white">{user.sbtTokenId}</span></div>
+                <div>GAS: <span className="text-white text-green-400">⚡ SPONSORED</span></div>
+                <div>CRYPTO: <span className="text-white">ON-CHAIN</span></div>
               </div>
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            {(["wallet", "send", "marketplace", "qr"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activeTab === tab
-                    ? "bg-primary/20 text-white border border-primary/30"
-                    : "text-muted hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {tab === "wallet" && "📊 Transactions"}
-                {tab === "send" && "💸 Send Tokens"}
-                {tab === "marketplace" && "🛒 Marketplace"}
-                {tab === "qr" && "📱 Tap-to-Pay"}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab: Transactions */}
-          {activeTab === "wallet" && (
-            <div className="animate-fade-in glass-card overflow-hidden">
-              {txns.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="text-3xl mb-3">📊</div>
-                  <p className="text-muted">No transactions yet.</p>
-                </div>
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Description</th>
-                      <th>Amount</th>
-                      <th>Gas</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {txns.map((tx) => (
-                      <tr key={tx.id}>
-                        <td>
-                          <span className={`badge ${tx.type === "reward" ? "badge-active" : tx.type === "transfer" ? "badge-unused" : "badge-redeemed"}`}>
-                            {tx.type}
-                          </span>
-                        </td>
-                        <td className="text-sm">{tx.description}</td>
-                        <td className={`font-semibold ${tx.to === user.walletAddress ? "text-success" : "text-danger"}`}>
-                          {tx.to === user.walletAddress ? "+" : "-"}{tx.amount} $CAMP
-                        </td>
-                        <td>
-                          <span className="text-secondary-light text-xs">
-                            {tx.gasless ? "⚡ Free" : "Paid"}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="badge badge-active">{tx.status}</span>
-                        </td>
-                        <td className="text-sm text-muted">
-                          {new Date(tx.timestamp).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
-          {/* Tab: Send Tokens */}
-          {activeTab === "send" && (
-            <div className="animate-fade-in glass-card p-6">
-              <h2 className="text-lg font-semibold text-white mb-2">
-                P2P Token Transfer (Gasless)
-              </h2>
-              <p className="text-muted text-sm mb-6">
-                Send $CAMPUS to any registered student. All fees are covered by the Paymaster.
-              </p>
-              <form onSubmit={handleSend} className="flex flex-col gap-4">
-                <div>
-                  <label className="text-xs text-muted block mb-2">Recipient Email</label>
-                  <input
-                    className="input-field"
-                    type="email"
-                    placeholder="e.g. friend@apsit.edu.in"
-                    value={sendTo}
-                    onChange={(e) => setSendTo(e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Amount ($CAMPUS)</label>
-                    <input
-                      type="number"
-                      className="input-field"
-                      min={1}
-                      value={sendAmount}
-                      onChange={(e) => setSendAmount(Number(e.target.value))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Note (optional)</label>
-                    <input
-                      className="input-field"
-                      placeholder="e.g. Coffee money ☕"
-                      value={sendDesc}
-                      onChange={(e) => setSendDesc(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/[0.06]">
-                  <div className="text-sm text-muted">
-                    Gas Fee: <span className="text-secondary-light font-semibold">0 (Sponsored ⚡)</span>
-                  </div>
-                  <button type="submit" className="btn-primary">
-                    Sign & Send →
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Tab: Marketplace */}
-          {activeTab === "marketplace" && (
-            <div className="animate-fade-in">
-              {/* New Listing */}
-              <div className="glass-card p-6 mb-6">
-                <h2 className="text-lg font-semibold text-white mb-4">📦 List an Item (Escrow)</h2>
-                <form onSubmit={handleCreateListing} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Title</label>
-                    <input
-                      className="input-field"
-                      placeholder="e.g. Data Structures Textbook"
-                      value={listTitle}
-                      onChange={(e) => setListTitle(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Category</label>
-                    <select
-                      className="select-field"
-                      value={listCat}
-                      onChange={(e) => setListCat(e.target.value as MarketplaceListing["category"])}
-                    >
-                      <option value="textbook">📚 Textbook</option>
-                      <option value="electronics">💻 Electronics</option>
-                      <option value="furniture">🪑 Furniture</option>
-                      <option value="other">📦 Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Description</label>
-                    <input
-                      className="input-field"
-                      placeholder="Brief description..."
-                      value={listDesc}
-                      onChange={(e) => setListDesc(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex gap-3 items-end">
-                    <div className="flex-1">
-                      <label className="text-xs text-muted block mb-2">Price ($CAMPUS)</label>
-                      <input
-                        type="number"
-                        className="input-field"
-                        min={1}
-                        value={listPrice}
-                        onChange={(e) => setListPrice(Number(e.target.value))}
-                      />
-                    </div>
-                    <button type="submit" className="btn-primary whitespace-nowrap">
-                      List Item
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Existing Listings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {listings.length === 0 ? (
-                  <div className="glass-card p-8 text-center col-span-full">
-                    <div className="text-3xl mb-3">🛒</div>
-                    <p className="text-muted">No items listed yet. Be the first seller!</p>
-                  </div>
+          {/* Active Section */}
+          <div className="glass-card min-h-[400px] flex flex-col">
+            {activeTab === "wallet" && (
+              <div className="p-6">
+                <h2 className="text-lg font-bold text-white mb-6">Recent Activity</h2>
+                {txns.length === 0 ? (
+                  <div className="py-20 text-center text-zinc-500 font-medium">No transactions yet.</div>
                 ) : (
-                  listings.map((item) => (
-                    <div
-                      key={item.id}
-                      className="glass-card p-5 flex flex-col gap-3 transition-all hover:-translate-y-1"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted">{item.category}</span>
-                        <span className={`badge badge-${item.status === "listed" ? "unused" : "redeemed"}`}>
-                          {item.status}
-                        </span>
+                  <div className="space-y-4">
+                    {txns.map((tx) => (
+                      <div key={tx.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">{tx.type === "reward" ? "🎁" : "💸"}</div>
+                          <div>
+                            <div className="text-sm font-bold text-white">{tx.description}</div>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">{new Date(tx.timestamp).toLocaleString()}</div>
+                          </div>
+                        </div>
+                        <div className={`text-sm font-black ${tx.to === user.walletAddress ? "text-green-400" : "text-red-400"}`}>
+                          {tx.to === user.walletAddress ? "+" : "-"}{tx.amount} CAMP
+                        </div>
                       </div>
-                      <h3 className="text-white font-semibold">{item.title}</h3>
-                      {item.description && (
-                        <p className="text-sm text-muted">{item.description}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/[0.06]">
-                        <span className="text-lg font-bold text-white">
-                          {item.price} <span className="text-xs text-muted">$CAMP</span>
-                        </span>
-                        <span className="text-xs text-muted">by {item.sellerName}</span>
-                      </div>
-                      {item.sellerId !== user.id && item.status === "listed" && (
-                        <button className="btn-primary w-full text-center text-sm mt-1">
-                          🔒 Buy with Escrow
-                        </button>
-                      )}
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Tab: QR Pay */}
-          {activeTab === "qr" && (
-            <div className="animate-fade-in glass-card p-8 text-center">
-              <h2 className="text-xl font-bold text-white mb-2">Tap-to-Pay QR Code</h2>
-              <p className="text-muted text-sm mb-8">
-                Show this QR code at the cafeteria or campus vendor to receive payments instantly.
-              </p>
-              <div className="inline-block p-6 bg-white rounded-2xl mb-6">
-                <svg width="180" height="180" viewBox="0 0 180 180">
-                  <rect width="180" height="180" fill="white"/>
-                  <rect x="10" y="10" width="50" height="50" fill="black" rx="4"/>
-                  <rect x="15" y="15" width="40" height="40" fill="white" rx="2"/>
-                  <rect x="22" y="22" width="26" height="26" fill="black" rx="2"/>
-                  <rect x="120" y="10" width="50" height="50" fill="black" rx="4"/>
-                  <rect x="125" y="15" width="40" height="40" fill="white" rx="2"/>
-                  <rect x="132" y="22" width="26" height="26" fill="black" rx="2"/>
-                  <rect x="10" y="120" width="50" height="50" fill="black" rx="4"/>
-                  <rect x="15" y="125" width="40" height="40" fill="white" rx="2"/>
-                  <rect x="22" y="132" width="26" height="26" fill="black" rx="2"/>
-                  {[70,80,90,100].map((x) =>
-                    [10,20,30,40,50,70,80,90,100,120,130,140,150].map((y) => (
-                      (x + y) % 3 !== 0 ? <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
-                    ))
-                  )}
-                  {[10,20,30,40,50,120,130,140,150].map((x) =>
-                    [70,80,90,100].map((y) => (
-                      (x + y) % 3 !== 1 ? <rect key={`${x}-${y}-h`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
-                    ))
-                  )}
-                  <rect x="72" y="72" width="36" height="36" fill="#6d28d9" rx="8"/>
-                  <text x="90" y="96" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">C</text>
-                </svg>
+            {activeTab === "send" && (
+              <div className="p-6 max-w-2xl">
+                <h2 className="text-xl font-bold text-white mb-2">Send $CAMPUS</h2>
+                <p className="text-zinc-500 text-sm mb-8 leading-relaxed">Secure, gasless peer-to-peer transfers. Authenticated by your device passkey.</p>
+                <form onSubmit={handleSend} className="space-y-6">
+                  <div>
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">RECIPIENT EMAIL</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all"
+                      type="email"
+                      placeholder="friend@apsit.edu.in"
+                      value={sendTo}
+                      onChange={(e) => setSendTo(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">AMOUNT</label>
+                      <input
+                        type="number"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                        value={sendAmount}
+                        onChange={(e) => setSendAmount(Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">MEMO</label>
+                      <input
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all"
+                        placeholder="Coffee, books, etc."
+                        value={sendDesc}
+                        onChange={(e) => setSendDesc(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full py-4 rounded-xl bg-white text-black font-black uppercase tracking-widest text-xs border border-white hover:bg-zinc-200 transition-all mt-4">
+                    Authorize Transaction →
+                  </button>
+                </form>
               </div>
-              <div className="text-sm text-muted mb-2">Your Wallet Address</div>
-              <code className="text-white font-mono text-sm bg-white/5 px-4 py-2 rounded-lg">
-                {user.walletAddress}
-              </code>
-              <div className="mt-6 text-xs text-muted">
-                Payments are signed with your Passkey and settled gaslessly on-chain.
+            )}
+
+            {activeTab === "marketplace" && (
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-lg font-bold text-white">Campus Marketplace</h2>
+                  <button onClick={() => showToast("Marketplace listing feature coming soon!", "success")} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10">List Item</button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.map((item) => (
+                    <div key={item.id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">{item.category}</span>
+                        <span className="text-[10px] font-bold text-zinc-400">{item.status}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">{item.title}</h3>
+                        <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{item.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div className="text-lg font-black text-white">{item.price} <span className="text-[10px] text-zinc-600">CAMP</span></div>
+                        <button className="px-3 py-1.5 rounded-lg bg-white text-black text-[10px] font-black uppercase tracking-tighter hover:bg-zinc-200">Buy</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {activeTab === "qr" && (
+              <div className="p-12 flex flex-col items-center justify-center text-center">
+                <h2 className="text-xl font-bold text-white mb-2">Tap-to-Pay</h2>
+                <p className="text-zinc-500 text-sm mb-10">Show this QR code at campus vendors for instantaneous gasless payments.</p>
+                <div className="p-8 bg-white rounded-3xl mb-8">
+                  <div className="w-48 h-48 bg-black flex items-center justify-center rounded-2xl">
+                    <span className="text-6xl">🔳</span>
+                  </div>
+                </div>
+                <code className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-zinc-400 font-mono">
+                  {user.walletAddress}
+                </code>
+              </div>
+            )}
+          </div>
         </div>
 
         {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}

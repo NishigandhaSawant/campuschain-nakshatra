@@ -1,19 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
+  --background: #050505;
   --foreground: #fafafa;
-  --primary: #6d28d9;
-  --primary-light: #8b5cf6;
-  --secondary: #0ea5e9;
-  --secondary-light: #38bdf8;
-  --card: #111113;
-  --card-border: rgba(255, 255, 255, 0.06);
-  --card-hover: rgba(255, 255, 255, 0.08);
+  --primary: #ffffff;
+  --primary-light: #e4e4e7;
+  --secondary: #27272a;
+  --secondary-light: #3f3f46;
+  --accent: #a1a1aa;
+  --card: #09090b;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover: rgba(255, 255, 255, 0.12);
   --muted: #71717a;
-  --success: #22c55e;
+  --success: #fcfcfc;
   --danger: #ef4444;
   --warning: #f59e0b;
+}
+
+[data-theme='light'] {
+  --background: #f4f4f5;
+  --foreground: #09090b;
+  --primary: #000000;
+  --primary-light: #18181b;
+  --secondary: #e4e4e7;
+  --secondary-light: #d4d4d8;
+  --accent: #71717a;
+  --card: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-hover: rgba(0, 0, 0, 0.04);
+  --muted: #52525b;
+  --success: #000000;
+  --danger: #dc2626;
+  --warning: #d97706;
 }
 
 @theme inline {
@@ -36,41 +54,53 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   background-image:
-    radial-gradient(circle at 0% 0%, rgba(109, 40, 217, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 40%);
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.2), transparent 50%);
   background-attachment: fixed;
   min-height: 100vh;
+  letter-spacing: -0.01em;
+}
+
+[data-theme='light'] body {
+  background-image:
+    radial-gradient(circle at 50% -20%, rgba(0, 0, 0, 0.05), transparent 50%);
 }
 
 /* Glassmorphism Card */
 .glass-card {
-  background: rgba(17, 17, 19, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
+  background: rgba(9, 9, 11, 0.8);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(12, 12, 14, 0.9);
+  transform: translateY(-2px);
 }
 
 /* Glow Button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: white;
+  background: var(--primary);
+  color: var(--background);
   padding: 12px 28px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
-  border: none;
+  border: 1px solid var(--primary);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 0 20px rgba(109, 40, 217, 0.3);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 0 30px rgba(109, 40, 217, 0.5);
+  opacity: 0.9;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:disabled {
@@ -81,10 +111,10 @@ body {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   color: white;
   padding: 12px 28px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -93,8 +123,8 @@ body {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-danger {
@@ -131,9 +161,9 @@ body {
 
 /* Input */
 .input-field {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  color: var(--foreground);
   padding: 12px 16px;
   border-radius: 12px;
   font-size: 14px;
@@ -147,8 +177,8 @@ body {
 }
 
 .input-field:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* Select */
@@ -270,14 +300,17 @@ body {
   flex-direction: column;
   gap: 8px;
   padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
 }
 
 .stat-value {
   font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, white, #a1a1aa);
+  letter-spacing: -0.04em;
+  background: linear-gradient(180deg, var(--foreground) 0%, var(--accent) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -289,18 +322,47 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(109, 40, 217, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(109, 40, 217, 0.5); }
+
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  50% {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.metallic-text {
+  background: linear-gradient(135deg, var(--foreground) 0%, var(--accent) 50%, var(--muted) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 }
 
 .animate-fade-in {

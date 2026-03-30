@@ -59,18 +59,17 @@ export default function RequestCampusPage() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 relative">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-success/10 blur-[100px] rounded-full pointer-events-none" />
         <div className="w-full max-w-lg z-10 animate-fade-in text-center">
           <div className="glass-card p-10">
             <div className="w-20 h-20 rounded-full bg-success/20 border-2 border-success flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">✓</span>
+              <span className="text-4xl text-success">✓</span>
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">Request Submitted!</h2>
             <p className="text-muted text-sm mb-2">
-              Your campus registration request for <strong className="text-white">{collegeName}</strong> has been 
+              Your campus registration request for <strong className="text-white">{collegeName}</strong> has been
               sent to the CampusChain Super Admin for verification.
             </p>
-            <p className="text-muted text-sm mb-8">
+            <p className="text-zinc-500 text-sm mb-8">
               Once approved, you will be able to log in as a Campus Admin using the credentials you provided.
             </p>
 
@@ -82,7 +81,7 @@ export default function RequestCampusPage() {
                 </div>
                 <div>
                   <span className="text-muted text-xs">Domain</span>
-                  <div className="text-secondary-light mt-0.5">{collegeDomain.startsWith("@") ? collegeDomain : `@${collegeDomain}`}</div>
+                  <div className="text-white mt-0.5 font-medium">{collegeDomain.startsWith("@") ? collegeDomain : `@${collegeDomain}`}</div>
                 </div>
                 <div>
                   <span className="text-muted text-xs">Admin Email</span>
@@ -90,16 +89,16 @@ export default function RequestCampusPage() {
                 </div>
                 <div>
                   <span className="text-muted text-xs">Status</span>
-                  <div className="mt-0.5"><span className="badge badge-unused">Pending Review</span></div>
+                  <div className="mt-0.5"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-white/5 uppercase tracking-wider">Pending Review</span></div>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3 justify-center">
-              <Link href="/login" className="btn-primary">
+              <Link href="/login" className="px-6 py-2.5 rounded-xl bg-white text-black font-bold hover:bg-zinc-200 transition-all text-sm">
                 Go to Login →
               </Link>
-              <Link href="/" className="btn-secondary">
+              <Link href="/" className="px-6 py-2.5 rounded-xl bg-white/5 text-white font-medium border border-white/5 hover:bg-white/10 transition-all text-sm">
                 Back to Home
               </Link>
             </div>
@@ -111,29 +110,21 @@ export default function RequestCampusPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
-      {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
-
       <div className="w-full max-w-2xl z-10 animate-fade-in">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white">
+          <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl font-black text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-105">
             C
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">CampusChain</span>
+          <span className="text-2xl font-bold text-white tracking-tighter">CampusChain</span>
         </Link>
 
         {/* Step Indicator */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold ${
-            step === 1 ? "bg-primary/20 text-white border border-primary/30" : "bg-white/5 text-muted"
-          }`}>
-            <span>🏫</span> College Details
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${step === 1 ? "bg-white text-black" : "bg-white/5 text-zinc-500"}`}>
+            <span>🏫</span> Institution Details
           </div>
           <div className="w-8 h-0.5 bg-white/10 rounded" />
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold ${
-            step === 2 ? "bg-primary/20 text-white border border-primary/30" : "bg-white/5 text-muted"
-          }`}>
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${step === 2 ? "bg-white text-black" : "bg-white/5 text-zinc-500"}`}>
             <span>👤</span> Admin Account
           </div>
         </div>
@@ -141,12 +132,12 @@ export default function RequestCampusPage() {
         <div className="glass-card p-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-white">
-              {step === 1 ? "Register Your Campus" : "Create Admin Account"}
+              {step === 1 ? "Partner Registration" : "Setup Campus Admin"}
             </h2>
             <p className="text-muted text-sm mt-1">
               {step === 1
-                ? "Fill in your institution details. This will be verified by our Super Admin."
-                : "Set up your Campus Admin credentials for managing license keys."}
+                ? "Register your institution on the CampusChain network."
+                : "Create your primary administrative credentials."}
             </p>
           </div>
 
@@ -154,9 +145,9 @@ export default function RequestCampusPage() {
             {step === 1 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted block mb-2">College / University Name *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Institution Name *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     placeholder="e.g. A.P. Shah Institute of Technology"
                     value={collegeName}
                     onChange={(e) => setCollegeName(e.target.value)}
@@ -164,9 +155,9 @@ export default function RequestCampusPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted block mb-2">Email Domain *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Email Domain *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     placeholder="e.g. @apsit.edu.in"
                     value={collegeDomain}
                     onChange={(e) => setCollegeDomain(e.target.value)}
@@ -174,29 +165,29 @@ export default function RequestCampusPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted block mb-2">Phone Number *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Phone Number *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     type="tel"
-                    placeholder="e.g. +91-22-28082724"
+                    placeholder="Official Contact"
                     value={collegePhone}
                     onChange={(e) => setCollegePhone(e.target.value)}
                     required
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted block mb-2">College Website *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Institution Website *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     type="url"
-                    placeholder="e.g. https://www.apsit.edu.in"
+                    placeholder="https://example.edu.in"
                     value={collegeWebsite}
                     onChange={(e) => setCollegeWebsite(e.target.value)}
                     required
                   />
                 </div>
-                <div className="md:col-span-2 mt-2">
-                  <button type="submit" className="btn-primary w-full text-center">
+                <div className="md:col-span-2 mt-4">
+                  <button type="submit" className="w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm">
                     Continue to Admin Setup →
                   </button>
                 </div>
@@ -206,9 +197,9 @@ export default function RequestCampusPage() {
             {step === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted block mb-2">Your Full Name *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Full Name (Superintendent/Dean) *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     placeholder="e.g. Dr. Rajesh Kumar"
                     value={adminName}
                     onChange={(e) => setAdminName(e.target.value)}
@@ -216,20 +207,20 @@ export default function RequestCampusPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted block mb-2">Admin Email *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Admin Email Address *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     type="email"
-                    placeholder="e.g. admin@apsit.edu.in"
+                    placeholder="dean@institution.edu.in"
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted block mb-2">Create Password *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Create Password *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     type="password"
                     placeholder="Min 6 characters"
                     value={adminPassword}
@@ -238,40 +229,29 @@ export default function RequestCampusPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted block mb-2">Confirm Password *</label>
+                  <label className="text-xs text-muted block mb-2 font-medium">Confirm Password *</label>
                   <input
-                    className="input-field"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-sm"
                     type="password"
-                    placeholder="Re-enter password"
+                    placeholder="Verify password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
                 </div>
 
-                {/* Preview Card */}
-                <div className="md:col-span-2 glass-card p-4 my-2">
-                  <div className="text-xs text-muted mb-2 font-semibold">📋 Request Preview</div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-muted">College:</span> <span className="text-white">{collegeName}</span></div>
-                    <div><span className="text-muted">Domain:</span> <span className="text-secondary-light">{collegeDomain.startsWith("@") ? collegeDomain : `@${collegeDomain}`}</span></div>
-                    <div><span className="text-muted">Website:</span> <span className="text-white">{collegeWebsite}</span></div>
-                    <div><span className="text-muted">Phone:</span> <span className="text-white">{collegePhone}</span></div>
-                  </div>
-                </div>
-
                 {error && (
-                  <div className="md:col-span-2 text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl p-3">
+                  <div className="md:col-span-2 text-red-400 text-xs bg-red-400/5 border border-red-400/10 rounded-xl p-3">
                     ⚠️ {error}
                   </div>
                 )}
 
-                <div className="md:col-span-2 flex gap-3 mt-2">
-                  <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1 text-center">
+                <div className="md:col-span-2 flex gap-3 mt-4">
+                  <button type="button" onClick={() => setStep(1)} className="flex-1 py-3.5 rounded-xl bg-white/5 text-white font-bold border border-white/5 hover:bg-white/10 transition-all text-sm">
                     ← Back
                   </button>
-                  <button type="submit" className="btn-primary flex-1 text-center">
-                    Submit Request for Approval
+                  <button type="submit" className="flex-1 py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm">
+                    Submit Application
                   </button>
                 </div>
               </div>
@@ -279,11 +259,11 @@ export default function RequestCampusPage() {
           </form>
         </div>
 
-        <div className="text-center mt-6 space-y-2">
-          <Link href="/login" className="text-muted text-sm hover:text-white transition-colors block">
-            Already have an account? Sign In →
+        <div className="text-center mt-8 space-y-3">
+          <Link href="/login" className="text-muted text-xs hover:text-white transition-colors block">
+            Partner portal login →
           </Link>
-          <Link href="/" className="text-muted text-sm hover:text-white transition-colors block">
+          <Link href="/" className="text-muted text-[10px] hover:text-white transition-colors block">
             ← Back to Home
           </Link>
         </div>

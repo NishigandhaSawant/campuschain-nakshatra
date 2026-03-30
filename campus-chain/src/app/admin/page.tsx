@@ -49,7 +49,6 @@ export default function AdminPage() {
     const uniData = getUniversities().find((u) => u.id === admin.universityId);
     if (uniData) setUni(uniData);
 
-    // Get pending students whose email domain matches this university
     const allPending = getPendingStudents();
     if (uniData) {
       const domainPending = allPending.filter((p) => {
@@ -121,8 +120,6 @@ export default function AdminPage() {
     router.push("/login");
   }
 
-  // ---- Pending student selection ----
-
   function toggleSelect(id: string) {
     setSelectedPending((prev) => {
       const next = new Set(prev);
@@ -172,328 +169,188 @@ export default function AdminPage() {
 
   if (!admin || !uni) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted animate-pulse">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="text-zinc-500 animate-pulse font-medium">Loading Admin Dashboard...</div>
       </div>
     );
   }
 
   const validPendingCount = pendingStudents.filter((p) => p.domainValid).length;
-  const invalidPendingCount = pendingStudents.filter((p) => !p.domainValid).length;
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex text-white relative">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/[0.06] p-6 flex flex-col gap-2 shrink-0">
-        <Link href="/" className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-lg font-bold">
+      <aside className="w-72 border-r border-white/5 p-6 flex flex-col gap-2 shrink-0 bg-black/20 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-3 mb-10 px-2">
+          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black">
             C
           </div>
           <div>
             <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
-            <div className="text-[11px] text-muted">Campus Admin</div>
+            <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Campus Admin</div>
           </div>
         </Link>
-        <button onClick={() => setActiveTab("new_accounts")} className={`sidebar-link ${activeTab === "new_accounts" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("new_accounts")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "new_accounts" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>📨</span> New Accounts
           {pendingStudents.length > 0 && (
-            <span className="ml-auto bg-danger text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="ml-auto bg-red-400 text-black text-[9px] font-black px-1.5 py-0.5 rounded-md">
               {pendingStudents.length}
             </span>
           )}
         </button>
-        <button onClick={() => setActiveTab("keys")} className={`sidebar-link ${activeTab === "keys" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("keys")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "keys" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>🔑</span> License Keys
         </button>
-        <button onClick={() => setActiveTab("students")} className={`sidebar-link ${activeTab === "students" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("students")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "students" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>🎓</span> Students
         </button>
-        <button onClick={() => setActiveTab("rewards")} className={`sidebar-link ${activeTab === "rewards" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("rewards")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "rewards" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>🎁</span> Rewards
         </button>
-        <div className="mt-auto pt-6 border-t border-white/[0.06]">
-          <div className="text-xs text-muted">Managing</div>
-          <div className="text-sm font-semibold text-white">{uni.name}</div>
-          <div className="text-xs text-muted mt-0.5">{admin.email}</div>
-          <button onClick={handleLogout} className="text-xs text-danger mt-2 hover:underline">
+
+        <div className="mt-auto pt-6 border-t border-white/5 px-2">
+          <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2">{uni.name}</div>
+          <div className="text-sm font-bold text-white truncate">{admin.email}</div>
+          <button onClick={handleLogout} className="text-xs text-red-400 mt-4 font-bold hover:underline">
             Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-6xl mx-auto animate-fade-in">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white tracking-tight">{uni.name}</h1>
-            <p className="text-muted mt-1">
-              Campus Admin Dashboard — {uni.domain}
-            </p>
+          <div className="mb-10">
+            <h1 className="text-3xl font-black text-white tracking-tighter">{uni.name}</h1>
+            <p className="text-zinc-500 text-sm mt-1 font-medium">Campus Admin Control Center — {uni.domain}</p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="glass-card stat-card">
-              <span className="stat-label">Pending Signups</span>
-              <span className="stat-value">{pendingStudents.length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Total Keys</span>
-              <span className="stat-value">{keys.length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Unused Keys</span>
-              <span className="stat-value">{keys.filter((k) => k.status === "unused").length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Total Students</span>
-              <span className="stat-value">{students.length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Activated</span>
-              <span className="stat-value">{students.filter((s) => s.activated).length}</span>
-            </div>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            {[
+              { label: "Pending Signups", value: pendingStudents.length },
+              { label: "Total Keys", value: keys.length },
+              { label: "Active Students", value: students.filter((s) => s.activated).length },
+              { label: "Unused Keys", value: keys.filter((k) => k.status === "unused").length },
+            ].map((s, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2">{s.label}</div>
+                <div className="text-4xl font-black text-white">{s.value}</div>
+              </div>
+            ))}
           </div>
 
-          {/* ============== TAB: NEW ACCOUNTS ============== */}
+          {/* Section: New Accounts */}
           {activeTab === "new_accounts" && (
             <div className="animate-fade-in">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white">New Student Registrations</h2>
-                <p className="text-muted text-sm mt-1">
-                  Students who registered with a <code className="text-secondary-light">{uni.domain}</code> email.
-                  Verify and approve them to generate license keys.
-                </p>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Student Registrations</h2>
+                  <p className="text-zinc-500 text-sm">Verify students matching the <span className="text-white font-bold">{uni.domain}</span> domain.</p>
+                </div>
+                {selectedPending.size > 0 && (
+                  <button onClick={handleBulkApprove} className="px-6 py-2.5 rounded-xl bg-white text-black text-xs font-black uppercase tracking-widest border border-white hover:bg-zinc-200 transition-all">
+                    Approve Selected ({selectedPending.size})
+                  </button>
+                )}
               </div>
 
-              {/* CSV Export Modal */}
-              {csvData && csvData.length > 0 && (
-                <div className="glass-card p-6 mb-6 border-l-4 border-success/50 animate-fade-in">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        ✅ {csvData.length} Students Approved
-                      </h3>
-                      <p className="text-muted text-sm mt-1">
-                        License keys generated. Export the list to share with students securely.
-                      </p>
+              {csvData && (
+                <div className="p-6 rounded-2xl bg-green-400/5 border border-green-400/20 mb-8 flex items-center justify-between">
+                  <div>
+                    <div className="text-green-400 text-sm font-bold flex items-center gap-2">
+                       <span>✓</span> Batch Approval Successful
                     </div>
-                    <div className="flex gap-3">
-                      <button onClick={exportCSV} className="btn-primary flex items-center gap-2">
-                        📥 Export CSV
-                      </button>
-                      <button onClick={() => setCsvData(null)} className="btn-secondary text-sm">
-                        Dismiss
-                      </button>
-                    </div>
+                    <p className="text-zinc-500 text-xs mt-1">Export license keys to distribute to students.</p>
                   </div>
-
-                  <div className="glass-card overflow-hidden">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Department</th>
-                          <th>License Key</th>
-                          <th>Copy</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {csvData.map((r, i) => (
-                          <tr key={i}>
-                            <td className="font-medium text-white">{r.name}</td>
-                            <td className="text-sm">{r.email}</td>
-                            <td className="text-sm text-muted">{r.department}</td>
-                            <td>
-                              <code className="text-sm font-mono text-secondary-light bg-secondary/5 px-2 py-1 rounded-md">
-                                {r.licenseKey}
-                              </code>
-                            </td>
-                            <td>
-                              <button
-                                onClick={() => copyKey(r.licenseKey)}
-                                className="text-muted hover:text-white text-xs transition-colors"
-                              >
-                                {copiedKey === r.licenseKey ? "✅" : "📋"}
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <button onClick={exportCSV} className="px-4 py-2 rounded-lg bg-green-400 text-black text-xs font-black uppercase tracking-widest hover:brightness-110">Download CSV</button>
                 </div>
               )}
 
-              {/* Pending Students List */}
               {pendingStudents.length === 0 ? (
-                <div className="glass-card p-12 text-center">
-                  <div className="text-3xl mb-3">📭</div>
-                  <p className="text-muted">No new student registrations.</p>
-                  <p className="text-muted text-sm mt-1">
-                    Students can register at <code className="text-secondary-light">/register</code> using their <code className="text-secondary-light">{uni.domain}</code> email.
-                  </p>
-                </div>
+                <div className="py-20 text-center text-zinc-500 font-medium">No new student registrations found.</div>
               ) : (
-                <>
-                  {/* Summary Bar */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted">
-                        <span className="text-success font-semibold">{validPendingCount}</span> valid domain
-                        {invalidPendingCount > 0 && (
-                          <> · <span className="text-danger font-semibold">{invalidPendingCount}</span> invalid</>
-                        )}
-                      </span>
-                      <button
-                        onClick={toggleSelectAll}
-                        className="text-xs text-primary-light hover:text-white transition-colors"
-                      >
-                        {selectedPending.size === validPendingCount ? "Deselect All" : "Select All Valid"}
-                      </button>
-                    </div>
-                    {selectedPending.size > 0 && (
-                      <button onClick={handleBulkApprove} className="btn-success flex items-center gap-2">
-                        ✅ Approve & Generate Keys ({selectedPending.size})
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="glass-card overflow-hidden">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th className="w-10">
-                            <input
-                              type="checkbox"
-                              checked={selectedPending.size === validPendingCount && validPendingCount > 0}
-                              onChange={toggleSelectAll}
-                              className="accent-primary"
-                            />
-                          </th>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Department</th>
-                          <th>Domain Check</th>
-                          <th>Registered</th>
-                          <th>Actions</th>
+                <div className="glass-card overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-white/5 bg-white/[0.02]">
+                        <th className="p-4 w-12 text-center">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedPending.size === validPendingCount && validPendingCount > 0} 
+                            onChange={toggleSelectAll}
+                            className="accent-white"
+                          />
+                        </th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Name</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Email</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Department</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pendingStudents.map((ps) => (
+                        <tr key={ps.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                          <td className="p-4 text-center">
+                            {ps.domainValid && (
+                              <input 
+                                type="checkbox" 
+                                checked={selectedPending.has(ps.id)} 
+                                onChange={() => toggleSelect(ps.id)}
+                                className="accent-white"
+                              />
+                            )}
+                          </td>
+                          <td className="p-4 font-bold text-white text-sm">{ps.name}</td>
+                          <td className="p-4 text-zinc-400 text-sm">
+                            {ps.email}
+                            {!ps.domainValid && <span className="ml-2 text-[10px] text-red-400 font-bold uppercase tracking-tighter">Domain Mismatch</span>}
+                          </td>
+                          <td className="p-4 text-zinc-500 text-sm">{ps.department}</td>
+                          <td className="p-4 text-right">
+                            <button onClick={() => handleRejectPending(ps.id)} className="text-[10px] font-black text-red-500 uppercase hover:underline">Reject</button>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {pendingStudents.map((ps) => (
-                          <tr key={ps.id} className={!ps.domainValid ? "opacity-60" : ""}>
-                            <td>
-                              {ps.domainValid ? (
-                                <input
-                                  type="checkbox"
-                                  checked={selectedPending.has(ps.id)}
-                                  onChange={() => toggleSelect(ps.id)}
-                                  className="accent-primary"
-                                />
-                              ) : (
-                                <span className="text-danger text-xs">✕</span>
-                              )}
-                            </td>
-                            <td className="font-medium text-white">{ps.name}</td>
-                            <td>
-                              <div className="text-sm">
-                                {ps.email}
-                                {!ps.domainValid && (
-                                  <div className="text-[11px] text-danger mt-0.5">
-                                    ⚠️ Domain does not match {uni.domain}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td>
-                              <span className="text-sm text-muted">{ps.department}</span>
-                            </td>
-                            <td>
-                              {ps.domainValid ? (
-                                <span className="badge badge-active">✓ Valid</span>
-                              ) : (
-                                <span className="badge badge-suspended">✕ Invalid</span>
-                              )}
-                            </td>
-                            <td className="text-sm text-muted">
-                              {new Date(ps.createdAt).toLocaleDateString("en-IN", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </td>
-                            <td>
-                              <button
-                                onClick={() => handleRejectPending(ps.id)}
-                                className="btn-danger text-xs"
-                              >
-                                Reject
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
 
-          {/* ============== TAB: LICENSE KEYS ============== */}
+          {/* Section: License Keys */}
           {activeTab === "keys" && (
             <div className="animate-fade-in">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white">License Keys</h2>
-                <p className="text-muted text-sm mt-1">
-                  Keys generated via student approvals. Students use these to activate their wallet.
-                </p>
-              </div>
-
+              <h2 className="text-xl font-bold text-white mb-6">Generated License Keys</h2>
               <div className="glass-card overflow-hidden">
                 {keys.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="text-3xl mb-3">🔐</div>
-                    <p className="text-muted">No keys generated yet.</p>
-                    <p className="text-muted text-sm mt-1">Approve new student registrations to generate keys automatically.</p>
-                  </div>
+                  <div className="py-20 text-center text-zinc-500 font-medium">No keys generated yet.</div>
                 ) : (
-                  <table className="data-table">
+                  <table className="w-full text-left">
                     <thead>
-                      <tr>
-                        <th>License Key</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                        <th>Redeemed By</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                      <tr className="border-b border-white/5 bg-white/[0.02]">
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Key String</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Student</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {keys.map((k) => (
-                        <tr key={k.id}>
-                          <td>
-                            <div className="flex items-center gap-2">
-                              <code className="text-sm font-mono text-secondary-light bg-secondary/5 px-2 py-1 rounded-md">
-                                {k.key}
-                              </code>
-                              <button
-                                onClick={() => copyKey(k.key)}
-                                className="text-muted hover:text-white text-xs transition-colors"
-                              >
-                                {copiedKey === k.key ? "✅" : "📋"}
-                              </button>
+                        <tr key={k.id} className="border-b border-white/5 hover:bg-white/[0.01]">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <code className="text-zinc-300 font-mono text-sm bg-white/5 px-2 py-1 rounded-md border border-white/5 uppercase tracking-widest">{k.key}</code>
+                              <button onClick={() => copyKey(k.key)} className="text-zinc-600 hover:text-white text-xs">{copiedKey === k.key ? "✓" : "📋"}</button>
                             </div>
                           </td>
-                          <td className="text-sm">{k.assignedToName || k.assignedTo || "—"}</td>
-                          <td><span className={`badge badge-${k.status}`}>{k.status}</span></td>
-                          <td className="text-sm">{k.redeemedBy || "—"}</td>
-                          <td className="text-sm text-muted">{new Date(k.createdAt).toLocaleDateString()}</td>
-                          <td>
-                            {k.status === "unused" && (
-                              <button onClick={() => handleRevoke(k.id)} className="btn-danger">Revoke</button>
-                            )}
+                          <td className="p-4 text-white text-sm font-medium">{k.assignedToName || "—"}</td>
+                          <td className="p-4">
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${k.status === "redeemed" ? "bg-zinc-800 text-zinc-500" : "bg-white/10 text-white"}`}>{k.status}</span>
+                          </td>
+                          <td className="p-4 text-right">
+                            {k.status === "unused" && <button onClick={() => handleRevoke(k.id)} className="text-[10px] font-black text-red-500 uppercase hover:underline">Revoke</button>}
                           </td>
                         </tr>
                       ))}
@@ -504,55 +361,36 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* ============== TAB: STUDENTS ============== */}
+          {/* Section: Students */}
           {activeTab === "students" && (
             <div className="animate-fade-in">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white">Registered Students</h2>
-                <p className="text-muted text-sm mt-1">
-                  All approved students. Students who have activated their key have full wallet access.
-                </p>
-              </div>
+              <h2 className="text-xl font-bold text-white mb-6">Registered Students</h2>
               <div className="glass-card overflow-hidden">
                 {students.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="text-3xl mb-3">🎓</div>
-                    <p className="text-muted">No students approved yet.</p>
-                    <p className="text-muted text-sm mt-1">Go to &quot;New Accounts&quot; to approve registrations.</p>
-                  </div>
+                  <div className="py-20 text-center text-zinc-500 font-medium">No students registered yet.</div>
                 ) : (
-                  <table className="data-table">
+                  <table className="w-full text-left">
                     <thead>
-                      <tr>
-                        <th>Student</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Balance</th>
-                        <th>Activated</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                      <tr className="border-b border-white/5 bg-white/[0.02]">
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Student</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Department</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Balance</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {students.map((s) => (
-                        <tr key={s.id}>
-                          <td className="font-medium text-white">{s.name}</td>
-                          <td className="text-sm">{s.email}</td>
-                          <td className="text-sm text-muted">{s.department}</td>
-                          <td className="font-semibold">{s.campusBalance} $CAMP</td>
-                          <td>
-                            {s.activated ? (
-                              <span className="badge badge-active">✓ Active</span>
-                            ) : (
-                              <span className="badge badge-unused">Pending Key</span>
-                            )}
+                        <tr key={s.id} className="border-b border-white/5 hover:bg-white/[0.01]">
+                          <td className="p-4">
+                            <div className="font-bold text-white text-sm">{s.name}</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-tighter">{s.email}</div>
                           </td>
-                          <td><span className={`badge badge-${s.status}`}>{s.status}</span></td>
-                          <td>
-                            <button
-                              onClick={() => handleToggleStudent(s.id)}
-                              className={s.status === "active" ? "btn-danger" : "btn-success"}
-                            >
+                          <td className="p-4 text-zinc-500 text-sm">{s.department}</td>
+                          <td className="p-4">
+                            <div className="text-white font-black text-sm">{s.campusBalance} <span className="text-[10px] text-zinc-600">CAMP</span></div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button onClick={() => handleToggleStudent(s.id)} className={`text-[10px] font-black uppercase hover:underline ${s.status === "active" ? "text-red-500" : "text-green-500"}`}>
                               {s.status === "active" ? "Suspend" : "Activate"}
                             </button>
                           </td>
@@ -565,170 +403,66 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* ============== TAB: REWARDS ============== */}
+          {/* Section: Rewards */}
           {activeTab === "rewards" && (() => {
             const activatedStudents = students.filter((s) => s.status === "active" && s.activated);
-            const filteredStudents = rewardDeptFilter === "all"
-              ? activatedStudents
-              : activatedStudents.filter((s) => s.department === rewardDeptFilter);
-
-            const toggleRewardSelect = (id: string) => {
-              setSelectedRewardStudents((prev) => {
-                const next = new Set(prev);
-                if (next.has(id)) next.delete(id); else next.add(id);
-                return next;
-              });
-            };
-            const toggleRewardSelectAll = () => {
-              if (selectedRewardStudents.size === filteredStudents.length) {
-                setSelectedRewardStudents(new Set());
-              } else {
-                setSelectedRewardStudents(new Set(filteredStudents.map((s) => s.id)));
-              }
-            };
+            const filteredStudents = rewardDeptFilter === "all" ? activatedStudents : activatedStudents.filter((s) => s.department === rewardDeptFilter);
 
             return (
-            <div className="animate-fade-in">
-              {/* Config Card */}
-              <div className="glass-card p-6 mb-6">
-                <h2 className="text-lg font-semibold text-white mb-2">Learn-to-Earn: Selective Reward</h2>
-                <p className="text-muted text-sm mb-6">
-                  Choose exactly which students receive $CAMPUS tokens. Filter by department or pick individually.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs text-muted block mb-2">Amount per Student</label>
-                    <input
-                      type="number"
-                      className="input-field"
-                      min={1}
-                      value={rewardAmount}
-                      onChange={(e) => setRewardAmount(Number(e.target.value))}
-                    />
+              <div className="animate-fade-in">
+                <div className="glass-card p-8 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-3">
+                    <h2 className="text-xl font-bold text-white mb-2">Learn-to-Earn Rewards</h2>
+                    <p className="text-zinc-500 text-sm">Issue $CAMPUS to students for participation, GPA milestones, or events.</p>
                   </div>
                   <div>
-                    <label className="text-xs text-muted block mb-2">Reason *</label>
-                    <input
-                      className="input-field"
-                      placeholder="e.g. 100% Attendance — March 2026"
-                      value={rewardReason}
-                      onChange={(e) => setRewardReason(e.target.value)}
-                    />
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">AMOUNT</label>
+                    <input type="number" className="input-field" value={rewardAmount} onChange={(e) => setRewardAmount(Number(e.target.value))} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">REASON / MEMO</label>
+                    <input className="input-field" placeholder="e.g. Workshop Attendance" value={rewardReason} onChange={(e) => setRewardReason(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted block mb-2">Filter by Department</label>
-                    <select
-                      className="select-field"
-                      value={rewardDeptFilter}
-                      onChange={(e) => {
-                        setRewardDeptFilter(e.target.value as Department | "all");
-                        setSelectedRewardStudents(new Set());
-                      }}
-                    >
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">DEPT FILTER</label>
+                    <select className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all text-xs" value={rewardDeptFilter} onChange={(e) => { setRewardDeptFilter(e.target.value as Department | "all"); setSelectedRewardStudents(new Set()); }}>
                       <option value="all">All Departments</option>
-                      {DEPARTMENTS.map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
+                      {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
+                  <div className="md:col-span-2 flex items-end">
+                    <button onClick={handleBatchReward} className="w-full py-3.5 rounded-xl bg-white text-black text-xs font-black uppercase tracking-widest border border-white hover:bg-zinc-200">Issue {rewardAmount} $CAMP to {selectedRewardStudents.size} Students</button>
+                  </div>
+                </div>
+
+                <div className="glass-card overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-white/5 bg-white/[0.02]">
+                        <th className="p-4 w-12 text-center">
+                          <input type="checkbox" checked={selectedRewardStudents.size === filteredStudents.length && filteredStudents.length > 0} onChange={() => { if (selectedRewardStudents.size === filteredStudents.length) setSelectedRewardStudents(new Set()); else setSelectedRewardStudents(new Set(filteredStudents.map(s => s.id))); }} className="accent-white" />
+                        </th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Student</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStudents.map((s) => (
+                        <tr key={s.id} className="border-b border-white/5 hover:bg-white/[0.01]">
+                          <td className="p-4 text-center">
+                            <input type="checkbox" checked={selectedRewardStudents.has(s.id)} onChange={() => { const next = new Set(selectedRewardStudents); if (next.has(s.id)) next.delete(s.id); else next.add(s.id); setSelectedRewardStudents(next); }} className="accent-white" />
+                          </td>
+                          <td className="p-4">
+                            <div className="font-bold text-white text-sm">{s.name}</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5">{s.department}</div>
+                          </td>
+                          <td className="p-4 text-right text-white font-black">{s.campusBalance} CAMP</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-
-              {/* Student Selection */}
-              {activatedStudents.length === 0 ? (
-                <div className="glass-card p-12 text-center">
-                  <div className="text-3xl mb-3">🎓</div>
-                  <p className="text-muted">No activated students yet.</p>
-                  <p className="text-muted text-sm mt-1">Students need to redeem their license key before they can receive rewards.</p>
-                </div>
-              ) : (
-                <>
-                  {/* Action Bar */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted">
-                        <span className="text-white font-semibold">{filteredStudents.length}</span> student{filteredStudents.length !== 1 ? "s" : ""}
-                        {rewardDeptFilter !== "all" && (
-                          <> in <span className="text-secondary-light">{rewardDeptFilter}</span></>
-                        )}
-                      </span>
-                      <button
-                        onClick={toggleRewardSelectAll}
-                        className="text-xs text-primary-light hover:text-white transition-colors"
-                      >
-                        {selectedRewardStudents.size === filteredStudents.length && filteredStudents.length > 0 ? "Deselect All" : "Select All"}
-                      </button>
-                    </div>
-                    {selectedRewardStudents.size > 0 && (
-                      <button onClick={handleBatchReward} className="btn-primary flex items-center gap-2">
-                        🎁 Drop {rewardAmount} $CAMPUS to {selectedRewardStudents.size} Student{selectedRewardStudents.size !== 1 ? "s" : ""}
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="glass-card overflow-hidden">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th className="w-10">
-                            <input
-                              type="checkbox"
-                              checked={selectedRewardStudents.size === filteredStudents.length && filteredStudents.length > 0}
-                              onChange={toggleRewardSelectAll}
-                              className="accent-primary"
-                            />
-                          </th>
-                          <th>Student</th>
-                          <th>Email</th>
-                          <th>Department</th>
-                          <th>Current Balance</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredStudents.map((s) => (
-                          <tr key={s.id} className={selectedRewardStudents.has(s.id) ? "bg-primary/5" : ""}>
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={selectedRewardStudents.has(s.id)}
-                                onChange={() => toggleRewardSelect(s.id)}
-                                className="accent-primary"
-                              />
-                            </td>
-                            <td className="font-medium text-white">{s.name}</td>
-                            <td className="text-sm">{s.email}</td>
-                            <td className="text-sm text-muted">{s.department}</td>
-                            <td className="font-semibold">{s.campusBalance} $CAMP</td>
-                            <td><span className="badge badge-active">Active</span></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Summary Footer */}
-                  {selectedRewardStudents.size > 0 && (
-                    <div className="glass-card p-4 mt-4 flex items-center justify-between">
-                      <div className="text-sm text-muted">
-                        Total distribution:{" "}
-                        <span className="text-white font-bold">
-                          {(selectedRewardStudents.size * rewardAmount).toLocaleString()} $CAMPUS
-                        </span>
-                        {" "}to{" "}
-                        <span className="text-white font-semibold">{selectedRewardStudents.size}</span> students
-                        {rewardReason && (
-                          <> — <span className="text-secondary-light">&quot;{rewardReason}&quot;</span></>
-                        )}
-                      </div>
-                      <button onClick={handleBatchReward} className="btn-success text-sm">
-                        ✅ Confirm & Execute
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
             );
           })()}
         </div>

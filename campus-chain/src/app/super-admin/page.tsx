@@ -82,250 +82,186 @@ export default function SuperAdminPage() {
   const processedRequests = requests.filter((r) => r.status !== "pending");
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex text-white relative">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/[0.06] p-6 flex flex-col gap-2 shrink-0">
-        <Link href="/" className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-lg font-bold">
-            C
-          </div>
-          <div>
-            <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
-            <div className="text-[11px] text-muted">Super Admin</div>
-          </div>
-        </Link>
-        <button onClick={() => setActiveTab("requests")} className={`sidebar-link ${activeTab === "requests" ? "active" : ""}`}>
+      <aside className="w-72 border-r border-white/5 p-6 flex flex-col gap-2 shrink-0 bg-black/20 backdrop-blur-xl">
+        <div className="flex items-center justify-between mb-10 px-2">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black">
+              C
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
+              <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Platform</div>
+            </div>
+          </Link>
+          <button 
+            onClick={handleLogout}
+            className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all"
+            title="Logout"
+          >
+            <span className="text-xs font-bold">✕</span>
+          </button>
+        </div>
+
+        <button onClick={() => setActiveTab("requests")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "requests" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>📨</span> Requests
           {pendingRequests.length > 0 && (
-            <span className="ml-auto bg-danger text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className={`ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-md ${activeTab === "requests" ? "bg-black text-white" : "bg-red-400 text-black"}`}>
               {pendingRequests.length}
             </span>
           )}
         </button>
-        <button onClick={() => setActiveTab("universities")} className={`sidebar-link ${activeTab === "universities" ? "active" : ""}`}>
+        <button onClick={() => setActiveTab("universities")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "universities" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>🏛️</span> Universities
         </button>
-        <div className="mt-auto pt-6 border-t border-white/[0.06]">
-          <div className="text-xs text-muted">Logged in as</div>
-          <div className="text-sm font-semibold text-white">Platform Owner</div>
-          <button onClick={handleLogout} className="text-xs text-danger mt-2 hover:underline">
-            Sign Out
-          </button>
+
+        <div className="mt-auto pt-6 border-t border-white/5 px-2">
+          <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Authenticated as</div>
+          <div className="text-sm font-bold text-white">Super Admin</div>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-6xl mx-auto animate-fade-in">
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="glass-card stat-card">
-              <span className="stat-label">Pending Requests</span>
-              <span className="stat-value">{pendingRequests.length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Total Universities</span>
-              <span className="stat-value">{universities.length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Active</span>
-              <span className="stat-value">{universities.filter((u) => u.status === "active").length}</span>
-            </div>
-            <div className="glass-card stat-card">
-              <span className="stat-label">Total Students</span>
-              <span className="stat-value">{universities.reduce((a, u) => a + u.studentCount, 0)}</span>
-            </div>
+          {/* Stats Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            {[
+              { label: "Pending Requests", value: pendingRequests.length },
+              { label: "Total Partners", value: universities.length },
+              { label: "Active Nodes", value: universities.filter((u) => u.status === "active").length },
+              { label: "Total Ecosystem", value: universities.reduce((a, u) => a + u.studentCount, 0) },
+            ].map((s, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2">{s.label}</div>
+                <div className="text-4xl font-black text-white">{s.value}</div>
+              </div>
+            ))}
           </div>
 
-          {/* Tab: Requests */}
+          {/* Section: Requests */}
           {activeTab === "requests" && (
             <div className="animate-fade-in">
-              <div className="mb-6">
-                <h1 className="text-3xl font-bold text-white tracking-tight">Campus Requests</h1>
-                <p className="text-muted mt-1">
-                  Review and verify university registration applications.
-                </p>
-              </div>
-
-              {/* Pending Requests */}
+              <h2 className="text-xl font-bold text-white mb-6">University Onboarding Requests</h2>
               {pendingRequests.length === 0 ? (
-                <div className="glass-card p-12 text-center mb-8">
-                  <div className="text-3xl mb-3">📭</div>
-                  <p className="text-muted">No pending requests.</p>
-                  <p className="text-muted text-sm mt-1">New campus registrations will appear here.</p>
-                </div>
+                <div className="py-20 text-center text-zinc-500 font-medium">No pending registration requests.</div>
               ) : (
-                <div className="space-y-4 mb-8">
+                <div className="space-y-4">
                   {pendingRequests.map((req) => (
-                    <div key={req.id} className="glass-card p-6">
-                      <div className="flex items-start justify-between mb-4">
+                    <div key={req.id} className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/10 transition-all">
+                      <div className="flex items-start justify-between mb-6">
                         <div>
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="text-lg font-bold text-white">{req.collegeName}</h3>
-                            <span className="badge badge-unused">Pending Review</span>
+                          <h3 className="text-lg font-bold text-white">{req.collegeName}</h3>
+                          <div className="flex items-center gap-3 mt-1">
+                            <code className="text-[11px] text-zinc-400 font-mono bg-white/5 px-2 py-0.5 rounded border border-white/5">{req.collegeDomain}</code>
+                            <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-none">Submitted {new Date(req.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <p className="text-muted text-sm">
-                            Submitted on {new Date(req.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleApprove(req.id)} className="px-4 py-2 rounded-lg bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200">Approve</button>
+                          <button onClick={() => setRejectId(req.id)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/10">Reject</button>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                          <div className="text-xs text-muted mb-1">Email Domain</div>
-                          <code className="text-secondary-light text-sm bg-secondary/10 px-2 py-0.5 rounded-md">{req.collegeDomain}</code>
-                        </div>
-                        <div>
-                          <div className="text-xs text-muted mb-1">Website</div>
-                          <a href={req.collegeWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-light hover:underline">{req.collegeWebsite}</a>
-                        </div>
-                        <div>
-                          <div className="text-xs text-muted mb-1">Phone</div>
-                          <span className="text-sm text-white">{req.collegePhone}</span>
-                        </div>
-                        <div>
-                          <div className="text-xs text-muted mb-1">Admin Contact</div>
-                          <span className="text-sm text-white">{req.adminName}</span>
-                          <br />
-                          <span className="text-xs text-muted">{req.adminEmail}</span>
-                        </div>
-                      </div>
-
-                      {rejectId === req.id ? (
-                        <div className="flex gap-3 items-end mt-4 pt-4 border-t border-white/[0.06]">
-                          <div className="flex-1">
-                            <label className="text-xs text-muted block mb-2">Rejection Reason</label>
-                            <input
-                              className="input-field"
-                              placeholder="e.g. Could not verify the institution"
-                              value={rejectReason}
-                              onChange={(e) => setRejectReason(e.target.value)}
-                            />
-                          </div>
-                          <button onClick={() => handleReject(req.id)} className="btn-danger">
-                            Confirm Reject
-                          </button>
-                          <button onClick={() => { setRejectId(null); setRejectReason(""); }} className="btn-secondary text-sm">
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-3 mt-4 pt-4 border-t border-white/[0.06]">
-                          <button onClick={() => handleApprove(req.id)} className="btn-success flex items-center gap-2">
-                            ✅ Approve & Create Admin
-                          </button>
-                          <button onClick={() => setRejectId(req.id)} className="btn-danger flex items-center gap-2">
-                            ❌ Reject
-                          </button>
-                          <a href={req.collegeWebsite} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm ml-auto">
-                            🔗 Verify Website
-                          </a>
+                      {rejectId === req.id && (
+                        <div className="mt-4 p-4 rounded-xl bg-red-500/5 border border-red-500/20 flex gap-3 items-center animate-fade-in">
+                          <input 
+                            className="flex-1 bg-transparent border-none text-white text-sm focus:ring-0 placeholder:text-zinc-700" 
+                            placeholder="Type reason for rejection..." 
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                          />
+                          <button onClick={() => handleReject(req.id)} className="text-xs font-bold text-red-500 uppercase hover:underline">Confirm</button>
+                          <button onClick={() => setRejectId(null)} className="text-xs font-bold text-zinc-500 uppercase hover:underline">Cancel</button>
                         </div>
                       )}
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-white/5">
+                        <div className="space-y-1">
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">Admin Contact</div>
+                          <div className="text-sm font-medium">{req.adminName}</div>
+                          <div className="text-[11px] text-zinc-500 truncate">{req.adminEmail}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">Website</div>
+                          <a href={req.collegeWebsite} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-white underline underline-offset-2 hover:opacity-80 truncate block">{req.collegeWebsite}</a>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">Phone</div>
+                          <div className="text-sm font-medium">{req.collegePhone}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">ID</div>
+                          <div className="text-[11px] text-zinc-600 font-mono">#{req.id.slice(0, 8)}</div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Processed Requests */}
               {processedRequests.length > 0 && (
-                <>
-                  <h2 className="text-lg font-semibold text-white mb-4">Past Requests</h2>
+                <div className="mt-12">
+                  <h3 className="text-sm font-black text-zinc-600 uppercase tracking-[0.2em] mb-4">Historical Activity</h3>
                   <div className="glass-card overflow-hidden">
-                    <table className="data-table">
+                    <table className="w-full text-left">
                       <thead>
-                        <tr>
-                          <th>College</th>
-                          <th>Domain</th>
-                          <th>Admin</th>
-                          <th>Status</th>
-                          <th>Date</th>
+                        <tr className="border-b border-white/5 bg-white/[0.02]">
+                          <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Institution</th>
+                          <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status</th>
+                          <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {processedRequests.map((req) => (
-                          <tr key={req.id}>
-                            <td className="font-medium text-white">{req.collegeName}</td>
-                            <td><code className="text-secondary text-sm">{req.collegeDomain}</code></td>
-                            <td className="text-sm">{req.adminEmail}</td>
-                            <td>
-                              <span className={`badge ${req.status === "approved" ? "badge-active" : "badge-suspended"}`}>
-                                {req.status}
-                              </span>
-                            </td>
-                            <td className="text-sm text-muted">{new Date(req.createdAt).toLocaleDateString()}</td>
+                          <tr key={req.id} className="border-b border-white/5 opacity-60">
+                            <td className="p-4 text-sm font-bold">{req.collegeName}</td>
+                            <td className="p-4 font-black uppercase text-[10px] tracking-widest">{req.status}</td>
+                            <td className="p-4 text-right text-[10px] text-zinc-500">{new Date(req.createdAt).toLocaleDateString()}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                </>
+                </div>
               )}
             </div>
           )}
 
-          {/* Tab: Universities */}
+          {/* Section: Universities */}
           {activeTab === "universities" && (
             <div className="animate-fade-in">
-              <div className="mb-6">
-                <h1 className="text-3xl font-bold text-white tracking-tight">Active Universities</h1>
-                <p className="text-muted mt-1">
-                  All approved campuses on the CampusChain network.
-                </p>
-              </div>
-
+              <h2 className="text-xl font-bold text-white mb-6">Registered Ecosystem Partners</h2>
               <div className="glass-card overflow-hidden">
                 {universities.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="text-3xl mb-3">🏫</div>
-                    <p className="text-muted">No universities yet. Approve a request to get started.</p>
-                  </div>
+                  <div className="py-20 text-center text-zinc-500 font-medium">No universities registered yet.</div>
                 ) : (
-                  <table className="data-table">
+                  <table className="w-full text-left">
                     <thead>
-                      <tr>
-                        <th>University</th>
-                        <th>Domain</th>
-                        <th>Website</th>
-                        <th>Phone</th>
-                        <th>Students</th>
-                        <th>Admin</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                      <tr className="border-b border-white/5 bg-white/[0.02]">
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">University</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Users</th>
+                        <th className="p-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {universities.map((uni) => (
-                        <tr key={uni.id}>
-                          <td className="font-medium text-white">{uni.name}</td>
-                          <td>
-                            <code className="text-secondary text-sm bg-secondary/10 px-2 py-0.5 rounded-md">{uni.domain}</code>
+                        <tr key={uni.id} className="border-b border-white/5 hover:bg-white/[0.01]">
+                          <td className="p-4">
+                            <div className="font-bold text-white text-sm">{uni.name}</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-tighter">{uni.domain}</div>
                           </td>
-                          <td>
-                            {uni.website ? (
-                              <a href={uni.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-light hover:underline">
-                                Visit →
-                              </a>
-                            ) : "—"}
+                          <td className="p-4">
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${uni.status === "active" ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-red-400 bg-red-400/10 border border-red-400/20"}`}>{uni.status}</span>
                           </td>
-                          <td className="text-sm">{uni.phone || "—"}</td>
-                          <td>{uni.studentCount}</td>
-                          <td className="text-sm text-muted">{uni.adminEmail || "—"}</td>
-                          <td>
-                            <span className={`badge badge-${uni.status}`}>{uni.status}</span>
-                          </td>
-                          <td>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleToggle(uni.id)}
-                                className={uni.status === "active" ? "btn-danger" : "btn-success"}
-                              >
-                                {uni.status === "active" ? "Suspend" : "Activate"}
-                              </button>
-                              <button onClick={() => handleRemove(uni.id)} className="btn-danger">
-                                Remove
-                              </button>
-                            </div>
+                          <td className="p-4 text-sm font-bold text-zinc-400">{uni.studentCount}</td>
+                          <td className="p-4 text-right">
+                             <div className="flex gap-2 justify-end">
+                                <button onClick={() => handleToggle(uni.id)} className="text-[10px] font-black uppercase hover:underline">{uni.status === "active" ? "Suspend" : "Activate"}</button>
+                                <button onClick={() => handleRemove(uni.id)} className="text-[10px] font-black uppercase text-red-500 hover:underline ml-2">Delete</button>
+                             </div>
                           </td>
                         </tr>
                       ))}
