@@ -3,6 +3,29 @@
 
 // ---- Types ----
 
+export type Department =
+  | "Data Science"
+  | "AIML"
+  | "IT"
+  | "Computer Science"
+  | "Civil"
+  | "Mechanical"
+  | "Electronics"
+  | "Electrical"
+  | "Other";
+
+export const DEPARTMENTS: Department[] = [
+  "Data Science",
+  "AIML",
+  "IT",
+  "Computer Science",
+  "Civil",
+  "Mechanical",
+  "Electronics",
+  "Electrical",
+  "Other",
+];
+
 export interface University {
   id: string;
   name: string;
@@ -45,9 +68,23 @@ export interface LicenseKey {
   universityId: string;
   universityName: string;
   status: "unused" | "redeemed" | "revoked";
+  assignedTo?: string;
+  assignedToName?: string;
   redeemedBy?: string;
   createdAt: string;
   redeemedAt?: string;
+}
+
+// A student who has registered but has NOT yet been approved / given a key
+export interface PendingStudent {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  department: Department;
+  status: "pending" | "approved" | "rejected";
+  domainValid: boolean;
+  createdAt: string;
 }
 
 export interface Student {
@@ -55,6 +92,7 @@ export interface Student {
   email: string;
   name: string;
   password: string;
+  department: Department;
   universityId: string;
   universityName: string;
   walletAddress: string;
@@ -64,6 +102,7 @@ export interface Student {
   status: "active" | "suspended" | "graduated";
   createdAt: string;
   passkey: boolean;
+  activated: boolean; // becomes true once student redeems key in dashboard
 }
 
 export interface Transaction {
@@ -161,12 +200,31 @@ export function loginCampusAdmin(email: string, password: string): { success: bo
 }
 
 export function loginStudent(email: string, password: string): { success: boolean; error?: string } {
+  // First check if user is a fully activated student
   const students = getStudents();
   const student = students.find((s) => s.email === email && s.password === password);
-  if (!student) return { success: false, error: "Invalid email or password." };
-  if (student.status === "suspended") return { success: false, error: "Your account has been suspended." };
-  setSession({ role: "student", email, universityId: student.universityId });
-  return { success: true };
+  if (student) {
+    if (student.status === "suspended") return { success: false, error: "Your account has been suspended." };
+    setSession({ role: "student", email, universityId: student.universityId });
+    return { success: true };
+  }
+
+  // Check if they are a pending student (registered but not yet approved)
+  const pending = getPendingStudents();
+  const ps = pending.find((p) => p.email === email && p.password === password);
+  if (ps) {
+    if (ps.status === "pending") {
+      return { success: false, error: "Your registration is pending approval from your Campus Admin. Please wait." };
+    }
+    if (ps.status === "rejected") {
+      return { success: false, error: "Your registration was rejected. Please contact your Campus Admin." };
+    }
+    // If approved but they haven't activated yet — let them in to enter the key
+    setSession({ role: "student", email });
+    return { success: true };
+  }
+
+  return { success: false, error: "Invalid email or password. Have you registered yet?" };
 }
 
 export function setSession(session: Session): void {
@@ -185,6 +243,193 @@ export function logout(): void {
 
 export function getSuperAdminEmail(): string {
   return SUPER_ADMIN_EMAIL;
+}
+
+// ============================================================
+// PENDING STUDENTS (Register first → Campus Admin approves → Key assigned)
+// ============================================================
+
+export function getPendingStudents(): PendingStudent[] {
+  return getItem<PendingStudent>("cc_pending_students", []);
+}
+
+export function registerPendingStudent(
+  name: string,
+  email: string,
+  password: string,
+  department: Department
+): { success: boolean; error?: string } {
+  // Check duplicate
+  const existing = getPendingStudents();
+  if (existing.find((p) => p.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: "An account with this email already exists." };
+  }
+  const fullStudents = getStudents();
+  if (fullStudents.find((s) => s.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: "An account with this email already exists." };
+  }
+
+  // Check if the email domain matches any registered university
+  const emailDomain = "@" + email.split("@")[1];
+  const unis = getUniversities();
+  const matchedUni = unis.find((u) => u.domain.toLowerCase() === emailDomain.toLowerCase());
+  const domainValid = !!matchedUni;
+
+  const ps: PendingStudent = {
+    id: generateId(),
+    name,
+    email,
+    password,
+    department,
+    status: "pending",
+    domainValid,
+    createdAt: new Date().toISOString(),
+  };
+  existing.push(ps);
+  setItem("cc_pending_students", existing);
+  return { success: true };
+}
+
+/** Campus Admin approves selected pending students:
+ *  - generates a license key per student
+ *  - creates a full Student record (but not activated until they enter the key)
+ *  - returns the list for CSV export
+ */
+export function approvePendingStudents(
+  pendingIds: string[],
+  universityId: string,
+  universityName: string
+): { name: string; email: string; department: string; licenseKey: string }[] {
+  const pending = getPendingStudents();
+  const allKeys = getItem<LicenseKey>("cc_license_keys", []);
+  const students = getItem<Student>("cc_students", []);
+  const unis = getUniversities();
+  const results: { name: string; email: string; department: string; licenseKey: string }[] = [];
+
+  pendingIds.forEach((pid) => {
+    const idx = pending.findIndex((p) => p.id === pid);
+    if (idx === -1) return;
+    const ps = pending[idx];
+
+    const keyStr = generateLicenseKeyString();
+
+    // Create LicenseKey record
+    const lk: LicenseKey = {
+      id: generateId(),
+      key: keyStr,
+      universityId,
+      universityName,
+      status: "unused",
+      assignedTo: ps.email,
+      assignedToName: ps.name,
+      createdAt: new Date().toISOString(),
+    };
+    allKeys.push(lk);
+
+    // Create Student record (not yet activated)
+    const student: Student = {
+      id: generateId(),
+      email: ps.email,
+      name: ps.name,
+      password: ps.password,
+      department: ps.department,
+      universityId,
+      universityName,
+      walletAddress: generateWalletAddress(),
+      sbtTokenId: `SBT-${generateId().toUpperCase().substring(0, 8)}`,
+      campusBalance: 0,
+      licenseKey: keyStr,
+      status: "active",
+      createdAt: new Date().toISOString(),
+      passkey: false,
+      activated: false,
+    };
+    students.push(student);
+
+    // Update university student count
+    const uniIdx = unis.findIndex((u) => u.id === universityId);
+    if (uniIdx !== -1) {
+      unis[uniIdx].studentCount++;
+    }
+
+    // Mark pending as approved
+    pending[idx].status = "approved";
+
+    results.push({
+      name: ps.name,
+      email: ps.email,
+      department: ps.department,
+      licenseKey: keyStr,
+    });
+  });
+
+  setItem("cc_pending_students", pending);
+  setItem("cc_license_keys", allKeys);
+  setItem("cc_students", students);
+  setItem("cc_universities", unis);
+
+  return results;
+}
+
+export function rejectPendingStudent(pendingId: string): void {
+  const pending = getPendingStudents();
+  const idx = pending.findIndex((p) => p.id === pendingId);
+  if (idx !== -1) {
+    pending[idx].status = "rejected";
+    setItem("cc_pending_students", pending);
+  }
+}
+
+// ============================================================
+// ACTIVATE STUDENT (student enters their license key in the dashboard)
+// ============================================================
+
+export function activateStudentWithKey(
+  email: string,
+  licenseKeyStr: string
+): { success: boolean; error?: string; student?: Student } {
+  const students = getItem<Student>("cc_students", []);
+  const sIdx = students.findIndex((s) => s.email.toLowerCase() === email.toLowerCase());
+  if (sIdx === -1) return { success: false, error: "Student record not found." };
+
+  const student = students[sIdx];
+  if (student.activated) return { success: false, error: "Your account is already activated." };
+  if (student.licenseKey !== licenseKeyStr) {
+    return { success: false, error: "Invalid license key. Please check the key provided by your Campus Admin." };
+  }
+
+  // Mark key as redeemed
+  const keys = getItem<LicenseKey>("cc_license_keys", []);
+  const kIdx = keys.findIndex((k) => k.key === licenseKeyStr);
+  if (kIdx !== -1) {
+    keys[kIdx].status = "redeemed";
+    keys[kIdx].redeemedBy = email;
+    keys[kIdx].redeemedAt = new Date().toISOString();
+    setItem("cc_license_keys", keys);
+  }
+
+  // Activate student
+  students[sIdx].activated = true;
+  students[sIdx].passkey = true;
+  students[sIdx].campusBalance = 100;
+  setItem("cc_students", students);
+
+  // Create airdrop transaction
+  const txns = getItem<Transaction>("cc_transactions", []);
+  txns.push({
+    id: generateId(),
+    from: "CampusChain Treasury",
+    to: student.walletAddress,
+    amount: 100,
+    type: "reward",
+    description: "Welcome airdrop — 100 $CAMPUS tokens",
+    timestamp: new Date().toISOString(),
+    status: "completed",
+    gasless: true,
+  });
+  setItem("cc_transactions", txns);
+
+  return { success: true, student: { ...students[sIdx] } };
 }
 
 // ============================================================
@@ -369,95 +614,6 @@ export function revokeLicenseKey(keyId: string): void {
 }
 
 // ============================================================
-// STUDENT REGISTRATION
-// ============================================================
-
-export function redeemLicenseKey(
-  licenseKeyStr: string,
-  email: string,
-  name: string,
-  password: string
-): { success: boolean; error?: string; student?: Student } {
-  const keys = getItem<LicenseKey>("cc_license_keys", []);
-  const keyIdx = keys.findIndex((k) => k.key === licenseKeyStr);
-
-  if (keyIdx === -1) return { success: false, error: "Invalid license key." };
-  if (keys[keyIdx].status !== "unused")
-    return { success: false, error: "This license key has already been used or revoked." };
-
-  const unis = getUniversities();
-  const uni = unis.find((u) => u.id === keys[keyIdx].universityId);
-  if (!uni) return { success: false, error: "University not found." };
-  if (uni.status === "suspended")
-    return { success: false, error: "This university is currently suspended." };
-
-  // Validate domain
-  const emailDomain = "@" + email.split("@")[1];
-  if (emailDomain.toLowerCase() !== uni.domain.toLowerCase()) {
-    return {
-      success: false,
-      error: `Email domain must be ${uni.domain}. You provided ${emailDomain}.`,
-    };
-  }
-
-  // Check duplicate
-  const existingStudents = getStudents();
-  if (existingStudents.find((s) => s.email === email)) {
-    return { success: false, error: "An account with this email already exists." };
-  }
-
-  // Mark key as redeemed
-  keys[keyIdx].status = "redeemed";
-  keys[keyIdx].redeemedBy = email;
-  keys[keyIdx].redeemedAt = new Date().toISOString();
-  setItem("cc_license_keys", keys);
-
-  // Create student
-  const students = getItem<Student>("cc_students", []);
-  const student: Student = {
-    id: generateId(),
-    email,
-    name,
-    password,
-    universityId: uni.id,
-    universityName: uni.name,
-    walletAddress: generateWalletAddress(),
-    sbtTokenId: `SBT-${generateId().toUpperCase().substring(0, 8)}`,
-    campusBalance: 100,
-    licenseKey: licenseKeyStr,
-    status: "active",
-    createdAt: new Date().toISOString(),
-    passkey: true,
-  };
-  students.push(student);
-  setItem("cc_students", students);
-
-  // Update university student count
-  const uniIdx = unis.findIndex((u) => u.id === uni.id);
-  if (uniIdx !== -1) {
-    unis[uniIdx].studentCount++;
-    setItem("cc_universities", unis);
-  }
-
-  // Create initial airdrop transaction
-  const txns = getItem<Transaction>("cc_transactions", []);
-  txns.push({
-    id: generateId(),
-    from: "CampusChain Treasury",
-    to: student.walletAddress,
-    amount: 100,
-    type: "reward",
-    description: "Welcome airdrop — 100 $CAMPUS tokens",
-    timestamp: new Date().toISOString(),
-    status: "completed",
-    gasless: true,
-  });
-  setItem("cc_transactions", txns);
-
-  return { success: true, student };
-}
-
-// ============================================================
 // STUDENTS
 // ============================================================
 
@@ -468,7 +624,7 @@ export function getStudents(universityId?: string): Student[] {
 }
 
 export function getStudentByEmail(email: string): Student | undefined {
-  return getStudents().find((s) => s.email === email);
+  return getStudents().find((s) => s.email.toLowerCase() === email.toLowerCase());
 }
 
 export function toggleStudentStatus(studentId: string): void {
@@ -504,6 +660,8 @@ export function transferTokens(
   if (!receiver) return { success: false, error: "Recipient not found." };
   if (sender.status !== "active") return { success: false, error: "Your account is suspended." };
   if (receiver.status !== "active") return { success: false, error: "Recipient's account is suspended." };
+  if (!sender.activated) return { success: false, error: "Please activate your account first." };
+  if (!receiver.activated) return { success: false, error: "Recipient has not activated their account." };
   if (sender.campusBalance < amount) return { success: false, error: "Insufficient $CAMPUS balance." };
 
   const sIdx = students.findIndex((s) => s.id === sender.id);
@@ -529,7 +687,9 @@ export function transferTokens(
 }
 
 export function batchRewardStudents(universityId: string, amount: number, reason: string): number {
-  const students = getStudents().filter((s) => s.universityId === universityId && s.status === "active");
+  const students = getStudents().filter(
+    (s) => s.universityId === universityId && s.status === "active" && s.activated
+  );
   const allStudents = getStudents();
   const txns = getItem<Transaction>("cc_transactions", []);
 
@@ -542,6 +702,36 @@ export function batchRewardStudents(universityId: string, amount: number, reason
         id: generateId(),
         from: "CampusChain Treasury",
         to: s.walletAddress,
+        amount,
+        type: "reward",
+        description: reason,
+        timestamp: new Date().toISOString(),
+        status: "completed",
+        gasless: true,
+      });
+      rewarded++;
+    }
+  });
+
+  setItem("cc_students", allStudents);
+  setItem("cc_transactions", txns);
+  return rewarded;
+}
+
+/** Reward only specific students by their IDs */
+export function rewardSelectedStudents(studentIds: string[], amount: number, reason: string): number {
+  const allStudents = getStudents();
+  const txns = getItem<Transaction>("cc_transactions", []);
+
+  let rewarded = 0;
+  studentIds.forEach((sid) => {
+    const idx = allStudents.findIndex((s) => s.id === sid);
+    if (idx !== -1 && allStudents[idx].activated && allStudents[idx].status === "active") {
+      allStudents[idx].campusBalance += amount;
+      txns.push({
+        id: generateId(),
+        from: "CampusChain Treasury",
+        to: allStudents[idx].walletAddress,
         amount,
         type: "reward",
         description: reason,

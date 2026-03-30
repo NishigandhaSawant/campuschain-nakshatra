@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import {
   getSession,
   getStudentByEmail,
+  getPendingStudents,
+  activateStudentWithKey,
   getTransactions,
   transferTokens,
   getListings,
@@ -19,6 +21,7 @@ import {
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<Student | null>(null);
+  const [isPending, setIsPending] = useState(false);
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [activeTab, setActiveTab] = useState<"wallet" | "send" | "marketplace" | "qr">("wallet");
@@ -26,6 +29,11 @@ export default function DashboardPage() {
   const [sendAmount, setSendAmount] = useState(10);
   const [sendDesc, setSendDesc] = useState("");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  // License key activation
+  const [licenseKey, setLicenseKey] = useState("");
+  const [keyError, setKeyError] = useState("");
+  const [activating, setActivating] = useState(false);
 
   // Marketplace form
   const [listTitle, setListTitle] = useState("");
@@ -39,14 +47,30 @@ export default function DashboardPage() {
       router.push("/login");
       return;
     }
+
+    // Check if they're a fully approved student
     const u = getStudentByEmail(session.email);
-    if (!u) {
-      router.push("/login");
+    if (u) {
+      setUser(u);
+      setIsPending(false);
+      if (u.activated) {
+        setTxns(getTransactions(u.walletAddress).reverse());
+        setListings(getListings());
+      }
       return;
     }
-    setUser(u);
-    setTxns(getTransactions(u.walletAddress).reverse());
-    setListings(getListings());
+
+    // Check if they're still pending
+    const pending = getPendingStudents();
+    const ps = pending.find((p) => p.email === session.email);
+    if (ps && ps.status === "approved") {
+      // Approved but not yet a full student — shouldn't happen normally
+      setIsPending(true);
+      return;
+    }
+
+    // Not found at all
+    router.push("/login");
   }, [router]);
 
   useEffect(() => {
@@ -56,6 +80,29 @@ export default function DashboardPage() {
   function showToast(msg: string, type: "success" | "error" = "success") {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
+  }
+
+  function handleActivate(e: React.FormEvent) {
+    e.preventDefault();
+    setKeyError("");
+    if (!licenseKey.trim()) {
+      setKeyError("Please enter your license key.");
+      return;
+    }
+    if (!user) return;
+
+    setActivating(true);
+    setTimeout(() => {
+      const result = activateStudentWithKey(user.email, licenseKey.trim().toUpperCase());
+      if (!result.success) {
+        setKeyError(result.error || "Activation failed.");
+        setActivating(false);
+        return;
+      }
+      setActivating(false);
+      refresh();
+      showToast("🎉 Account activated! Welcome to CampusChain!");
+    }, 1000);
   }
 
   function handleSend(e: React.FormEvent) {
@@ -95,13 +142,127 @@ export default function DashboardPage() {
     router.push("/login");
   }
 
-  if (!user) {
+  // Loading state
+  if (!user && !isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-muted animate-pulse">Loading...</div>
       </div>
     );
   }
+
+  // ================================================================
+  // LICENSE KEY ACTIVATION GATE — student exists but hasn't entered key yet
+  // ================================================================
+  if (user && !user.activated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 relative">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[250px] bg-secondary/10 blur-[80px] rounded-full pointer-events-none" />
+
+        <div className="w-full max-w-lg z-10 animate-fade-in">
+          <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white">
+              C
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">CampusChain</span>
+          </Link>
+
+          <div className="glass-card p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🔑</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Activate Your Account</h2>
+              <p className="text-muted text-sm mt-2">
+                Welcome, <strong className="text-white">{user.name}</strong>! Your registration has been
+                approved. Enter the License Key provided by your Campus Admin to unlock your wallet.
+              </p>
+            </div>
+
+            {/* Student Info */}
+            <div className="glass-card p-4 mb-6">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-muted text-xs">Name</span>
+                  <div className="text-white mt-0.5">{user.name}</div>
+                </div>
+                <div>
+                  <span className="text-muted text-xs">Email</span>
+                  <div className="text-white mt-0.5">{user.email}</div>
+                </div>
+                <div>
+                  <span className="text-muted text-xs">Department</span>
+                  <div className="text-secondary-light mt-0.5">{user.department}</div>
+                </div>
+                <div>
+                  <span className="text-muted text-xs">University</span>
+                  <div className="text-white mt-0.5">{user.universityName}</div>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleActivate} className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs text-muted block mb-2">License Key *</label>
+                <input
+                  className="input-field font-mono tracking-wider text-center text-lg"
+                  placeholder="XXXX-XXXX-XXXX-XXXX"
+                  value={licenseKey}
+                  onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
+                  maxLength={19}
+                  style={{ letterSpacing: "0.15em" }}
+                />
+                <p className="text-[11px] text-muted mt-1.5 ml-1">
+                  This key was generated by your Campus Admin. Check your email or contact your admin.
+                </p>
+              </div>
+
+              {keyError && (
+                <div className="text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl p-3">
+                  ⚠️ {keyError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={activating}
+                className="btn-primary w-full text-center flex items-center justify-center gap-2"
+              >
+                {activating ? (
+                  <>
+                    <span className="animate-spin">⏳</span> Activating...
+                  </>
+                ) : (
+                  <>🔓 Activate & Unlock Wallet</>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-4 border-t border-white/[0.06] text-center">
+              <p className="text-xs text-muted">
+                After activation you&apos;ll receive <span className="text-success font-semibold">100 $CAMPUS</span> as a welcome airdrop
+                and get your Soulbound Student ID (SBT) minted to your Smart Account.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-6">
+            <button onClick={handleLogout} className="text-muted text-sm hover:text-white transition-colors">
+              ← Sign Out
+            </button>
+          </div>
+        </div>
+
+        {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
+      </div>
+    );
+  }
+
+  // ================================================================
+  // FULL DASHBOARD — activated student
+  // ================================================================
+  if (!user) return null;
 
   return (
     <div className="min-h-screen flex">
@@ -133,6 +294,7 @@ export default function DashboardPage() {
         <div className="mt-auto pt-6 border-t border-white/[0.06]">
           <div className="text-xs text-muted mb-1">{user.universityName}</div>
           <div className="text-sm font-semibold text-white">{user.name}</div>
+          <div className="text-xs text-muted mt-0.5">{user.department}</div>
           <div className="text-xs text-muted mt-1">{user.email}</div>
           <button
             onClick={handleLogout}
@@ -176,10 +338,14 @@ export default function DashboardPage() {
                 {user.campusBalance.toLocaleString()}
                 <span className="text-lg text-white/40 ml-2">$CAMP</span>
               </div>
-              <div className="flex gap-6 text-sm">
+              <div className="flex gap-6 text-sm flex-wrap">
                 <div>
                   <span className="text-white/40">SBT ID:</span>{" "}
                   <code className="text-primary-light">{user.sbtTokenId}</code>
+                </div>
+                <div>
+                  <span className="text-white/40">Department:</span>{" "}
+                  <span className="text-secondary-light">{user.department}</span>
                 </div>
                 <div>
                   <span className="text-white/40">Passkey:</span>{" "}
@@ -422,35 +588,27 @@ export default function DashboardPage() {
                 Show this QR code at the cafeteria or campus vendor to receive payments instantly.
               </p>
               <div className="inline-block p-6 bg-white rounded-2xl mb-6">
-                {/* Simple SVG QR placeholder */}
                 <svg width="180" height="180" viewBox="0 0 180 180">
-                  {/* QR-like pattern */}
                   <rect width="180" height="180" fill="white"/>
-                  {/* Corner squares */}
                   <rect x="10" y="10" width="50" height="50" fill="black" rx="4"/>
                   <rect x="15" y="15" width="40" height="40" fill="white" rx="2"/>
                   <rect x="22" y="22" width="26" height="26" fill="black" rx="2"/>
-                  
                   <rect x="120" y="10" width="50" height="50" fill="black" rx="4"/>
                   <rect x="125" y="15" width="40" height="40" fill="white" rx="2"/>
                   <rect x="132" y="22" width="26" height="26" fill="black" rx="2"/>
-                  
                   <rect x="10" y="120" width="50" height="50" fill="black" rx="4"/>
                   <rect x="15" y="125" width="40" height="40" fill="white" rx="2"/>
                   <rect x="22" y="132" width="26" height="26" fill="black" rx="2"/>
-                  
-                  {/* Data pattern */}
                   {[70,80,90,100].map((x) =>
                     [10,20,30,40,50,70,80,90,100,120,130,140,150].map((y) => (
-                      Math.random() > 0.4 ? <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
+                      (x + y) % 3 !== 0 ? <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
                     ))
                   )}
                   {[10,20,30,40,50,120,130,140,150].map((x) =>
                     [70,80,90,100].map((y) => (
-                      Math.random() > 0.4 ? <rect key={`${x}-${y}-h`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
+                      (x + y) % 3 !== 1 ? <rect key={`${x}-${y}-h`} x={x} y={y} width="8" height="8" fill="black" rx="1"/> : null
                     ))
                   )}
-                  {/* Center logo */}
                   <rect x="72" y="72" width="36" height="36" fill="#6d28d9" rx="8"/>
                   <text x="90" y="96" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">C</text>
                 </svg>

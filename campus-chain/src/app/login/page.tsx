@@ -180,7 +180,7 @@ export default function LoginPage() {
             {role === "student" && (
               <div className="space-y-2">
                 <p className="text-xs text-muted">
-                  New student? Register with your license key.
+                  New student? Create your account first.
                 </p>
                 <Link
                   href="/register"
@@ -188,6 +188,9 @@ export default function LoginPage() {
                 >
                   Student Registration →
                 </Link>
+                <p className="text-[11px] text-muted mt-1">
+                  After registration, your Campus Admin will approve and share a License Key with you.
+                </p>
               </div>
             )}
           </div>
