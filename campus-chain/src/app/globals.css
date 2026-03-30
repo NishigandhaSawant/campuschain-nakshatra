@@ -153,7 +153,7 @@ body {
 
 /* Select */
 .select-field {
-  background: rgba(255, 255, 255, 0.04);
+  background: #000000;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   padding: 12px 16px;
