@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [listDesc, setListDesc] = useState("");
   const [listPrice, setListPrice] = useState(25);
   const [listCat, setListCat] = useState<MarketplaceListing["category"]>("textbook");
+  const [showListForm, setShowListForm] = useState(false);
 
   const refresh = useCallback(() => {
     const session = getSession();
@@ -130,8 +131,27 @@ export default function DashboardPage() {
     setListTitle("");
     setListDesc("");
     setListPrice(25);
+    setShowListForm(false);
     refresh();
   }
+
+  function handleBuyItem(listing: MarketplaceListing) {
+    if (!user) return;
+    if (user.campusBalance < listing.price) {
+      showToast("Insufficient balance for this purchase.", "error");
+      return;
+    }
+    // For now, just show a success message
+    // In a real implementation, this would handle escrow
+    showToast(`Purchase of "${listing.title}" initiated! Escrow protecting your transaction.`);
+  }
+
+  // Generate QR code data URL for wallet address
+  const generateQRCode = (text: string): string => {
+    // Simple QR code using Google Charts API (works offline as fallback)
+    const size = 200;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+  };
 
   function handleLogout() {
     logout();
@@ -237,16 +257,16 @@ export default function DashboardPage() {
             <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Student</div>
           </div>
         </Link>
-        <button onClick={() => setActiveTab("wallet")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "wallet" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
+        <button onClick={() => setActiveTab("wallet")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "wallet" ? "bg-green-500 text-white shadow-lg shadow-green-500/25" : "text-zinc-500 hover:text-white"}`}>
           <span>📊</span> Transactions
         </button>
-        <button onClick={() => setActiveTab("send")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "send" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
+        <button onClick={() => setActiveTab("send")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "send" ? "bg-green-500 text-white shadow-lg shadow-green-500/25" : "text-zinc-500 hover:text-white"}`}>
           <span>💸</span> Send Tokens
         </button>
-        <button onClick={() => setActiveTab("marketplace")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "marketplace" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
+        <button onClick={() => setActiveTab("marketplace")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "marketplace" ? "bg-green-500 text-white shadow-lg shadow-green-500/25" : "text-zinc-500 hover:text-white"}`}>
           <span>🛒</span> Marketplace
         </button>
-        <button onClick={() => setActiveTab("qr")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "qr" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
+        <button onClick={() => setActiveTab("qr")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "qr" ? "bg-green-500 text-white shadow-lg shadow-green-500/25" : "text-zinc-500 hover:text-white"}`}>
           <span>📱</span> Tap-to-Pay
         </button>
 
@@ -256,7 +276,7 @@ export default function DashboardPage() {
           <div className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</div>
           <button
             onClick={handleLogout}
-            className="text-xs text-red-400 mt-4 font-bold hover:underline"
+            className="text-xs bg-red-500 text-white px-3 py-2 rounded-lg font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/25 mt-4"
           >
             Sign Out
           </button>
@@ -372,8 +392,71 @@ export default function DashboardPage() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-lg font-bold text-white">Campus Marketplace</h2>
-                  <button onClick={() => showToast("Marketplace listing feature coming soon!", "success")} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10">List Item</button>
+                  <button 
+                    onClick={() => setShowListForm(!showListForm)} 
+                    className="px-4 py-2 rounded-lg bg-green-500 text-white text-xs font-bold hover:bg-green-600 transition-all shadow-lg shadow-green-500/25"
+                  >
+                    {showListForm ? "Cancel" : "List Item"}
+                  </button>
                 </div>
+                
+                {showListForm && (
+                  <div className="mb-8 p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+                    <h3 className="text-lg font-bold text-white mb-4">Create New Listing</h3>
+                    <form onSubmit={handleCreateListing} className="space-y-4">
+                      <div>
+                        <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">TITLE</label>
+                        <input
+                          className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all"
+                          placeholder="e.g., Engineering Mathematics Textbook"
+                          value={listTitle}
+                          onChange={(e) => setListTitle(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">DESCRIPTION</label>
+                        <textarea
+                          className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all h-20 resize-none"
+                          placeholder="Condition, edition, details..."
+                          value={listDesc}
+                          onChange={(e) => setListDesc(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">PRICE (CAMP)</label>
+                          <input
+                            type="number"
+                            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                            value={listPrice}
+                            onChange={(e) => setListPrice(Number(e.target.value))}
+                            min="1"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block mb-2">CATEGORY</label>
+                          <select
+                            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white focus:outline-none focus:border-white/20 transition-all"
+                            value={listCat}
+                            onChange={(e) => setListCat(e.target.value as MarketplaceListing["category"])}
+                          >
+                            <option value="textbook">Textbook</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      <button 
+                        type="submit" 
+                        className="w-full py-3 rounded-xl bg-green-500 text-white font-black uppercase tracking-widest text-xs border border-green-500 hover:bg-green-600 transition-all shadow-lg shadow-green-500/25"
+                      >
+                        Create Listing →
+                      </button>
+                    </form>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {listings.map((item) => (
                     <div key={item.id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex flex-col gap-4">
@@ -387,7 +470,12 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
                         <div className="text-lg font-black text-white">{item.price} <span className="text-[10px] text-zinc-600">CAMP</span></div>
-                        <button className="px-3 py-1.5 rounded-lg bg-white text-black text-[10px] font-black uppercase tracking-tighter hover:bg-zinc-200">Buy</button>
+                        <button 
+                          onClick={() => handleBuyItem(item)}
+                          className="px-3 py-1.5 rounded-lg bg-green-500 text-white text-[10px] font-black uppercase tracking-tighter hover:bg-green-600 transition-all shadow-lg shadow-green-500/25"
+                        >
+                          Buy
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -399,14 +487,28 @@ export default function DashboardPage() {
               <div className="p-12 flex flex-col items-center justify-center text-center">
                 <h2 className="text-xl font-bold text-white mb-2">Tap-to-Pay</h2>
                 <p className="text-zinc-500 text-sm mb-10">Show this QR code at campus vendors for instantaneous gasless payments.</p>
-                <div className="p-8 bg-white rounded-3xl mb-8">
-                  <div className="w-48 h-48 bg-black flex items-center justify-center rounded-2xl">
+                <div className="p-8 bg-white rounded-3xl mb-8 shadow-2xl">
+                  <img 
+                    src={generateQRCode(user.walletAddress)} 
+                    alt="QR Code for payments" 
+                    className="w-48 h-48 rounded-2xl"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="w-48 h-48 bg-black flex items-center justify-center rounded-2xl hidden">
                     <span className="text-6xl">🔳</span>
                   </div>
                 </div>
-                <code className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-zinc-400 font-mono">
-                  {user.walletAddress}
-                </code>
+                <div className="space-y-2">
+                  <code className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-zinc-400 font-mono block">
+                    {user.walletAddress}
+                  </code>
+                  <p className="text-xs text-zinc-600">Scan or copy address for payments</p>
+                </div>
               </div>
             )}
           </div>

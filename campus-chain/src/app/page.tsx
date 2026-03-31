@@ -14,15 +14,6 @@ export default function Home() {
           <span className="text-xl font-bold text-white tracking-tighter">CampusChain</span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="/request-campus" className="text-zinc-400 hover:text-white transition-colors">
-            Register Campus
-          </Link>
-          <Link
-            href="/login"
-            className="px-5 py-2 rounded-lg bg-white text-black font-bold border border-white hover:bg-zinc-200 transition-all text-sm shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-          >
-            Sign In
-          </Link>
         </div>
       </nav>
 
@@ -38,28 +29,15 @@ export default function Home() {
         </h1>
 
         <p className="text-lg md:text-xl text-zinc-500 max-w-2xl mb-12 leading-relaxed font-medium">
-          Gasless transactions, biometric passkeys, and soulbound identities.
-          A premium Web3 SaaS platform for modern universities.
+          Choose your role
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
           <Link
             href="/login"
-            className="btn-primary flex items-center justify-center h-14 px-10 text-base"
+            className="flex items-center justify-center h-14 px-14 text-lg font-semibold bg-black text-white hover:bg-white hover:text-black transition-colors duration-200 rounded-lg"
           >
-            🔐 Sign In
-          </Link>
-          <Link
-            href="/register"
-            className="btn-secondary flex items-center justify-center h-14 px-8 text-base"
-          >
-            🎓 Student Registration
-          </Link>
-          <Link
-            href="/request-campus"
-            className="btn-secondary flex items-center justify-center h-14 px-8 text-base border-white/5"
-          >
-            🏛️ Register Your Campus
+            Let's mint
           </Link>
         </div>
 

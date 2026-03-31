@@ -59,6 +59,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
+      <Link href="/" className="absolute top-6 left-6 px-4 py-2 bg-black text-white hover:bg-white hover:text-black transition-colors duration-200 rounded flex items-center gap-2 border border-white">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </Link>
       <div className="w-full max-w-md z-10 animate-fade-in">
         <Link href="/" className="flex items-center gap-3 mb-10 justify-center">
           <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl font-black text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-transform hover:scale-105">
@@ -160,12 +166,6 @@ export default function LoginPage() {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="text-center mt-8">
-          <Link href="/" className="text-muted text-[10px] hover:text-white transition-colors">
-            ← Back to Home
-          </Link>
         </div>
       </div>
     </div>

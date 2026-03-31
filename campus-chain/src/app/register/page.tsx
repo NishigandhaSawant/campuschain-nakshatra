@@ -54,7 +54,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-lg z-10 animate-fade-in text-center">
           <div className="glass-card p-10">
             <div className="w-20 h-20 rounded-full bg-success/20 border-2 border-success flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl text-success">✓</span>
+              <span className="text-4xl text-green-500">✓</span>
             </div>
             <h2 className="text-2xl font-bold text-white mb-3">Registration Submitted!</h2>
             <p className="text-muted text-sm mb-2">
@@ -80,7 +80,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <span className="text-muted text-xs">Status</span>
-                  <div className="mt-0.5"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-white/5 uppercase tracking-wider">Pending Approval</span></div>
+                  <div className="mt-0.5"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-yellow-500 border border-white/5 uppercase tracking-wider">Pending Approval</span></div>
                 </div>
               </div>
             </div>

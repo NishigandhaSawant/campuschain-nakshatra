@@ -181,15 +181,22 @@ export default function AdminPage() {
     <div className="min-h-screen flex text-white relative">
       {/* Sidebar */}
       <aside className="w-72 border-r border-white/5 p-6 flex flex-col gap-2 shrink-0 bg-black/20 backdrop-blur-xl">
-        <Link href="/" className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black">
-            C
-          </div>
-          <div>
-            <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
-            <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Campus Admin</div>
-          </div>
-        </Link>
+        <div className="flex items-center justify-between mb-10 px-2">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg font-black text-black">
+              C
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white tracking-tight">CampusChain</div>
+              <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Campus Admin</div>
+            </div>
+          </Link>
+          <button onClick={handleLogout} className="text-red-500 hover:text-red-400 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
         <button onClick={() => setActiveTab("new_accounts")} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "new_accounts" ? "bg-white text-black" : "text-zinc-500 hover:text-white"}`}>
           <span>📨</span> New Accounts
           {pendingStudents.length > 0 && (
@@ -211,9 +218,6 @@ export default function AdminPage() {
         <div className="mt-auto pt-6 border-t border-white/5 px-2">
           <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2">{uni.name}</div>
           <div className="text-sm font-bold text-white truncate">{admin.email}</div>
-          <button onClick={handleLogout} className="text-xs text-red-400 mt-4 font-bold hover:underline">
-            Sign Out
-          </button>
         </div>
       </aside>
 
